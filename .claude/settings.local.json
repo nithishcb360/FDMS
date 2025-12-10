@@ -1,0 +1,26 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(mkdir:*)",
+      "Read(//d//**)",
+      "Bash(pip install:*)",
+      "Bash(uvicorn:*)",
+      "Bash(npm install)",
+      "Bash(npm run dev:*)",
+      "Bash(source:*)",
+      "Bash(curl:*)",
+      "Bash(python:*)",
+      "Bash(pg_config:*)",
+      "Bash(psql:*)",
+      "Bash(PGPASSWORD=admin psql:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" -U postgres -h localhost -c \"CREATE DATABASE fdms;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -U postgres -h localhost -c \"CREATE DATABASE fdms;\")",
+      "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql\" -U postgres -h localhost -c \"CREATE DATABASE fdms;\")",
+      "Bash(curl http://10.11.20.2:8001/)",
+      "Bash(git init:*)",
+      "Bash(git add:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
