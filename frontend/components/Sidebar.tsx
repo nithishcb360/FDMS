@@ -162,33 +162,102 @@ export default function Sidebar() {
             </button>
             {expandedSections.includes('operations') && (
               <div className="bg-slate-800/50 py-1">
-                <button onClick={() => toggleSection('inventory')} className="w-full flex items-center justify-between px-4 py-2 pl-11 hover:bg-slate-700 text-sm">
+                {/* Inventory */}
+                <button onClick={() => toggleSection('inventory')} className="w-full flex items-center justify-between px-4 py-2 pl-8 hover:bg-slate-700 text-sm">
                   <div className="flex items-center">
-                    <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2z"/></svg>
+                    <svg className="w-3.5 h-3.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1 0-2 .9-2 2v3.01c0 .72.43 1.34 1 1.69V20c0 1.1 1.1 2 2 2h14c.9 0 2-.9 2-2V8.7c.57-.35 1-.97 1-1.69V4c0-1.1-1-2-2-2zm-5 12H9v-2h6v2z"/></svg>
                     Inventory
                   </div>
-                  <svg className={`w-4 h-4 transition-transform ${expandedSections.includes('inventory') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-3.5 h-3.5 transition-transform ${expandedSections.includes('inventory') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7 10l5 5 5-5z"/>
                   </svg>
                 </button>
-                <button onClick={() => toggleSection('fleet')} className="w-full flex items-center justify-between px-4 py-2 pl-11 hover:bg-slate-700 text-sm">
+                {expandedSections.includes('inventory') && (
+                  <div className="bg-slate-900/50">
+                    <a href="/inventory/products" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/inventory/products') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
+                      Products
+                    </a>
+                    <a href="/inventory/categories" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/inventory/categories') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M10 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V8c0-1.1-.9-2-2-2h-8l-2-2z"/></svg>
+                      Categories
+                    </a>
+                    <a href="/inventory/suppliers" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/inventory/suppliers') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10z"/></svg>
+                      Suppliers
+                    </a>
+                    <a href="/inventory/purchase-orders" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/inventory/purchase-orders') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                      Purchase Orders
+                    </a>
+                    <a href="/inventory/stock-movements" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/inventory/stock-movements') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2l-5.5 9h11z M12 22l5.5-9h-11z"/></svg>
+                      Stock Movements
+                    </a>
+                  </div>
+                )}
+
+                {/* Fleet */}
+                <button onClick={() => toggleSection('fleet')} className="w-full flex items-center justify-between px-4 py-2 pl-8 hover:bg-slate-700 text-sm">
                   <div className="flex items-center">
-                    <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+                    <svg className="w-3.5 h-3.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
                     Fleet
                   </div>
-                  <svg className={`w-4 h-4 transition-transform ${expandedSections.includes('fleet') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-3.5 h-3.5 transition-transform ${expandedSections.includes('fleet') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7 10l5 5 5-5z"/>
                   </svg>
                 </button>
-                <button onClick={() => toggleSection('staff')} className="w-full flex items-center justify-between px-4 py-2 pl-11 hover:bg-slate-700 text-sm">
+                {expandedSections.includes('fleet') && (
+                  <div className="bg-slate-900/50">
+                    <a href="/fleet/vehicles" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/fleet/vehicles') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M18.92 6.01C18.72 5.42 18.16 5 17.5 5h-11c-.66 0-1.21.42-1.42 1.01L3 12v8c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h12v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-8l-2.08-5.99zM6.5 16c-.83 0-1.5-.67-1.5-1.5S5.67 13 6.5 13s1.5.67 1.5 1.5S7.33 16 6.5 16zm11 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zM5 11l1.5-4.5h11L19 11H5z"/></svg>
+                      Vehicles
+                    </a>
+                    <a href="/fleet/assignments" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/fleet/assignments') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3z"/></svg>
+                      Assignments
+                    </a>
+                    <a href="/fleet/maintenance" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/fleet/maintenance') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M22.7 19l-9.1-9.1c.9-2.3.4-5-1.5-6.9-2-2-5-2.4-7.4-1.3L9 6 6 9 1.6 4.7C.4 7.1.9 10.1 2.9 12.1c1.9 1.9 4.6 2.4 6.9 1.5l9.1 9.1c.4.4 1 .4 1.4 0l2.3-2.3c.5-.4.5-1.1.1-1.4z"/></svg>
+                      Maintenance
+                    </a>
+                    <a href="/fleet/fuel-logs" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/fleet/fuel-logs') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19.77 7.23l.01-.01-3.72-3.72L15 4.56l2.11 2.11c-.94.36-1.61 1.26-1.61 2.33 0 1.38 1.12 2.5 2.5 2.5.36 0 .69-.08 1-.21v7.21c0 .55-.45 1-1 1s-1-.45-1-1V14c0-1.1-.9-2-2-2h-1V5c0-1.1-.9-2-2-2H6c-1.1 0-2 .9-2 2v16h10v-7.5h1.5v5c0 1.38 1.12 2.5 2.5 2.5s2.5-1.12 2.5-2.5V9c0-.69-.28-1.32-.73-1.77zM12 10H6V5h6v5z"/></svg>
+                      Fuel Logs
+                    </a>
+                  </div>
+                )}
+
+                {/* Staff */}
+                <button onClick={() => toggleSection('staff')} className="w-full flex items-center justify-between px-4 py-2 pl-8 hover:bg-slate-700 text-sm">
                   <div className="flex items-center">
-                    <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                    <svg className="w-3.5 h-3.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                     Staff
                   </div>
-                  <svg className={`w-4 h-4 transition-transform ${expandedSections.includes('staff') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
+                  <svg className={`w-3.5 h-3.5 transition-transform ${expandedSections.includes('staff') ? 'rotate-180' : ''}`} fill="currentColor" viewBox="0 0 24 24">
                     <path d="M7 10l5 5 5-5z"/>
                   </svg>
                 </button>
+                {expandedSections.includes('staff') && (
+                  <div className="bg-slate-900/50">
+                    <a href="/staff/members" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/staff/members') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+                      Staff Members
+                    </a>
+                    <a href="/staff/tasks" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/staff/tasks') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 14H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
+                      Tasks
+                    </a>
+                    <a href="/staff/schedules" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/staff/schedules') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
+                      Schedules
+                    </a>
+                    <a href="/staff/time-logs" className={`flex items-center px-4 py-2 pl-14 text-xs ${isActive('/staff/time-logs') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                      <svg className="w-2.5 h-2.5 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+                      Time Logs
+                    </a>
+                  </div>
+                )}
               </div>
             )}
           </div>
