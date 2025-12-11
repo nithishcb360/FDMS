@@ -6,12 +6,14 @@ from .api import contact, cases
 from .api import next_of_kin as next_of_kin_api
 from .api import case_notes as case_notes_api
 from .api import assignments as assignments_api
+from .api import products as products_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
 from .models import next_of_kin as next_of_kin_model
 from .models import case_note as case_note_model
 from .models import assignment as assignment_model
+from .models import product as product_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -38,6 +40,7 @@ app.include_router(cases.router, prefix="/api/cases", tags=["cases"])
 app.include_router(next_of_kin_api.router, prefix="/api/next-of-kin", tags=["next-of-kin"])
 app.include_router(case_notes_api.router, prefix="/api/case-notes", tags=["case-notes"])
 app.include_router(assignments_api.router, prefix="/api/assignments", tags=["assignments"])
+app.include_router(products_api.router, prefix="/api/products", tags=["products"])
 
 
 @app.get("/")
