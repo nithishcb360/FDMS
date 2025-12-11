@@ -1,8 +1,11 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Sidebar from '@/components/Sidebar';
 import DashboardHeader from '@/components/DashboardHeader';
+import AddNextOfKinModal from '@/components/AddNextOfKinModal';
+import { casesApi, CaseData } from '@/lib/api/cases';
+import { nextOfKinApi, NextOfKinData as ApiNextOfKinData } from '@/lib/api/next-of-kin';
 
 interface NextOfKinData {
   id: number;
@@ -16,118 +19,178 @@ interface NextOfKinData {
   notifications: boolean;
 }
 
-// Sample data
-const sampleData: NextOfKinData[] = [
-  {
-    id: 1,
-    name: 'Mark Anderson',
-    email: 'mark.anderson@email.com',
-    relationship: 'Child',
-    case: '555-0110',
-    contact: '555-0110',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 2,
-    name: 'Nancy Taylor',
-    email: 'nancy.taylor@email.com',
-    relationship: 'Spouse',
-    case: '555-0109',
-    contact: '555-0109',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 3,
-    name: 'Steven Moore',
-    email: 'steven.moore@email.com',
-    relationship: 'Sibling',
-    case: '555-0108',
-    contact: '555-0108',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 4,
-    name: 'Carol Wilson',
-    email: 'carol.wilson@email.com',
-    relationship: 'Spouse',
-    case: '555-0107',
-    contact: '555-0107',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 5,
-    name: 'Richard Miller',
-    email: 'richard.miller@email.com',
-    relationship: 'Child',
-    case: '555-0106',
-    contact: '555-0106',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 6,
-    name: 'Karen Davis',
-    email: 'karen.davis@email.com',
-    relationship: 'Child',
-    case: '555-0105',
-    contact: '555-0105',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 7,
-    name: 'Thomas Brown',
-    email: 'thomas.brown@email.com',
-    relationship: 'Spouse',
-    case: '555-0104',
-    contact: '555-0104',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 8,
-    name: 'Jennifer Williams',
-    email: 'jennifer.williams@email.com',
-    relationship: 'Spouse',
-    case: '555-0103',
-    contact: '555-0103',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-  {
-    id: 9,
-    name: 'Susan Johnson',
-    email: 'susan.johnson@email.com',
-    relationship: 'Child',
-    case: '555-0102',
-    contact: '555-0102',
-    isPrimary: true,
-    isAuthorized: true,
-    notifications: true,
-  },
-];
-
 export default function NextOfKinPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [relationshipFilter, setRelationshipFilter] = useState('All Relationships');
   const [caseFilter, setCaseFilter] = useState('All Cases');
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [nextOfKinList, setNextOfKinList] = useState<NextOfKinData[]>([]);
+  const [cases, setCases] = useState<CaseData[]>([]);
+  const [editingKin, setEditingKin] = useState<NextOfKinData | null>(null);
+  const [loading, setLoading] = useState(true);
 
-  const totalContacts = sampleData.length;
-  const primaryContacts = sampleData.filter(k => k.isPrimary).length;
-  const authorizedContacts = sampleData.filter(k => k.isAuthorized).length;
-  const notificationsEnabled = sampleData.filter(k => k.notifications).length;
+  useEffect(() => {
+    fetchCases();
+    fetchNextOfKin();
+  }, []);
+
+  const fetchCases = async () => {
+    try {
+      const data = await casesApi.getAll();
+      setCases(data);
+    } catch (error) {
+      console.error('Error fetching cases:', error);
+    }
+  };
+
+  const fetchNextOfKin = async () => {
+    try {
+      setLoading(true);
+      const data = await nextOfKinApi.getAll();
+      // Transform API data to match UI format
+      const transformedData: NextOfKinData[] = data.map((item) => ({
+        id: item.id!,
+        name: `${item.first_name} ${item.last_name}`,
+        email: item.email || '',
+        relationship: item.relationship,
+        case: item.case_number,
+        contact: item.phone,
+        isPrimary: item.is_primary_contact,
+        isAuthorized: item.is_authorized_decision_maker,
+        notifications: item.receive_notifications,
+      }));
+      setNextOfKinList(transformedData);
+    } catch (error) {
+      console.error('Error fetching next of kin:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const totalContacts = nextOfKinList.length;
+  const primaryContacts = nextOfKinList.filter(k => k.isPrimary).length;
+  const authorizedContacts = nextOfKinList.filter(k => k.isAuthorized).length;
+  const notificationsEnabled = nextOfKinList.filter(k => k.notifications).length;
+
+  const handleAddNextOfKin = async (data: any) => {
+    try {
+      const apiData: ApiNextOfKinData = {
+        case_number: data.case,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        relationship: data.relationship,
+        phone: data.phone,
+        email: data.email,
+        street_address: data.streetAddress,
+        city: data.city,
+        state: data.state,
+        zip_code: data.zipCode,
+        is_primary_contact: data.isPrimaryContact,
+        is_authorized_decision_maker: data.isAuthorizedDecisionMaker,
+        receive_notifications: data.receiveNotifications,
+        notes: data.notes,
+      };
+
+      await nextOfKinApi.create(apiData);
+      await fetchNextOfKin(); // Refresh the list
+    } catch (error) {
+      console.error('Error adding next of kin:', error);
+      alert('Failed to add next of kin contact');
+    }
+  };
+
+  const handleEditKin = async (kin: NextOfKinData) => {
+    try {
+      // Fetch full details from API
+      const fullData = await nextOfKinApi.getById(kin.id);
+
+      // Transform to form data
+      const editData = {
+        id: fullData.id,
+        case: fullData.case_number,
+        relationship: fullData.relationship,
+        firstName: fullData.first_name,
+        lastName: fullData.last_name,
+        phone: fullData.phone,
+        email: fullData.email || '',
+        streetAddress: fullData.street_address || '',
+        city: fullData.city || '',
+        state: fullData.state || '',
+        zipCode: fullData.zip_code || '',
+        isPrimaryContact: fullData.is_primary_contact,
+        isAuthorizedDecisionMaker: fullData.is_authorized_decision_maker,
+        receiveNotifications: fullData.receive_notifications,
+        notes: fullData.notes || '',
+      };
+
+      setEditingKin(editData as any);
+      setIsEditModalOpen(true);
+    } catch (error) {
+      console.error('Error fetching next of kin details:', error);
+      alert('Failed to load contact details');
+    }
+  };
+
+  const handleUpdateNextOfKin = async (data: any) => {
+    try {
+      const apiData: Partial<ApiNextOfKinData> = {
+        case_number: data.case,
+        first_name: data.firstName,
+        last_name: data.lastName,
+        relationship: data.relationship,
+        phone: data.phone,
+        email: data.email,
+        street_address: data.streetAddress,
+        city: data.city,
+        state: data.state,
+        zip_code: data.zipCode,
+        is_primary_contact: data.isPrimaryContact,
+        is_authorized_decision_maker: data.isAuthorizedDecisionMaker,
+        receive_notifications: data.receiveNotifications,
+        notes: data.notes,
+      };
+
+      await nextOfKinApi.update(data.id, apiData);
+      await fetchNextOfKin(); // Refresh the list
+      setIsEditModalOpen(false);
+      setEditingKin(null);
+    } catch (error) {
+      console.error('Error updating next of kin:', error);
+      alert('Failed to update next of kin contact');
+    }
+  };
+
+  const handleDeleteKin = async (id: number, name: string) => {
+    if (window.confirm(`Are you sure you want to delete ${name}?`)) {
+      try {
+        await nextOfKinApi.delete(id);
+        await fetchNextOfKin(); // Refresh the list
+      } catch (error) {
+        console.error('Error deleting next of kin:', error);
+        alert('Failed to delete next of kin contact');
+      }
+    }
+  };
+
+  // Filter logic
+  const filteredNextOfKin = nextOfKinList.filter(kin => {
+    // Search filter
+    const matchesSearch = searchQuery === '' ||
+      kin.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kin.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      kin.contact.toLowerCase().includes(searchQuery.toLowerCase());
+
+    // Relationship filter
+    const matchesRelationship = relationshipFilter === 'All Relationships' ||
+      kin.relationship === relationshipFilter;
+
+    // Case filter
+    const matchesCase = caseFilter === 'All Cases' ||
+      kin.case === caseFilter;
+
+    return matchesSearch && matchesRelationship && matchesCase;
+  });
 
   const getRelationshipColor = (relationship: string) => {
     switch (relationship) {
@@ -137,6 +200,14 @@ export default function NextOfKinPage() {
         return 'bg-orange-500 text-white';
       case 'Sibling':
         return 'bg-purple-500 text-white';
+      case 'Parent':
+        return 'bg-green-500 text-white';
+      case 'Other Family':
+        return 'bg-blue-500 text-white';
+      case 'Friend':
+        return 'bg-cyan-500 text-white';
+      case 'Legal Representative':
+        return 'bg-indigo-500 text-white';
       default:
         return 'bg-gray-500 text-white';
     }
@@ -248,15 +319,27 @@ export default function NextOfKinPage() {
                   className="w-full px-3 py-2 border border-gray-300 rounded-md focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-sm"
                 >
                   <option>All Cases</option>
+                  {cases.map((caseItem) => (
+                    <option key={caseItem.id} value={caseItem.case_number}>
+                      {caseItem.case_number} - {caseItem.first_name} {caseItem.last_name}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div className="flex items-end">
-                <button className="w-full px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-900 text-sm font-medium flex items-center justify-center gap-2">
+                <button
+                  onClick={() => {
+                    setSearchQuery('');
+                    setRelationshipFilter('All Relationships');
+                    setCaseFilter('All Cases');
+                  }}
+                  className="w-full px-4 py-2 bg-slate-800 text-white rounded-md hover:bg-slate-900 text-sm font-medium flex items-center justify-center gap-2"
+                >
                   <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                   </svg>
-                  Filter
+                  Clear Filters
                 </button>
               </div>
             </div>
@@ -265,8 +348,17 @@ export default function NextOfKinPage() {
           {/* Table */}
           <div className="bg-white rounded-lg shadow border border-gray-200">
             <div className="flex items-center justify-between p-4 border-b border-gray-200">
-              <p className="text-sm text-gray-600">Showing 1 to 9 of 9 contacts</p>
-              <button className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 text-sm font-medium flex items-center gap-2">
+              <p className="text-sm text-gray-600">
+                {filteredNextOfKin.length > 0
+                  ? `Showing ${filteredNextOfKin.length} of ${nextOfKinList.length} contacts`
+                  : nextOfKinList.length > 0
+                  ? 'No contacts match the current filters'
+                  : 'No contacts added yet'}
+              </p>
+              <button
+                onClick={() => setIsAddModalOpen(true)}
+                className="px-4 py-2 bg-amber-500 text-white rounded-md hover:bg-amber-600 text-sm font-medium flex items-center gap-2"
+              >
                 <span>+</span>
                 Add Next of Kin
               </button>
@@ -287,8 +379,23 @@ export default function NextOfKinPage() {
                   </tr>
                 </thead>
                 <tbody className="bg-white divide-y divide-gray-200">
-                  {sampleData.map((kin) => (
-                    <tr key={kin.id} className="hover:bg-gray-50">
+                  {loading ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                        Loading contacts...
+                      </td>
+                    </tr>
+                  ) : filteredNextOfKin.length === 0 ? (
+                    <tr>
+                      <td colSpan={8} className="px-6 py-8 text-center text-gray-500">
+                        {nextOfKinList.length > 0
+                          ? 'No contacts match the current filters. Try adjusting your search criteria.'
+                          : 'No contacts added yet. Click "Add Next of Kin" to create one.'}
+                      </td>
+                    </tr>
+                  ) : (
+                    filteredNextOfKin.map((kin) => (
+                      <tr key={kin.id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div>
                           <div className="text-sm font-medium text-gray-900">{kin.name}</div>
@@ -348,12 +455,20 @@ export default function NextOfKinPage() {
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <div className="flex items-center gap-2">
-                          <button className="p-1.5 border border-blue-500 text-blue-500 rounded hover:bg-blue-50">
+                          <button
+                            onClick={() => handleEditKin(kin)}
+                            title="Edit"
+                            className="p-1.5 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition-colors"
+                          >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
                             </svg>
                           </button>
-                          <button className="p-1.5 border border-red-500 text-red-500 rounded hover:bg-red-50">
+                          <button
+                            onClick={() => handleDeleteKin(kin.id, kin.name)}
+                            title="Delete"
+                            className="p-1.5 border border-red-500 text-red-500 rounded hover:bg-red-50 transition-colors"
+                          >
                             <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
                             </svg>
@@ -361,13 +476,33 @@ export default function NextOfKinPage() {
                         </div>
                       </td>
                     </tr>
-                  ))}
+                  ))
+                  )}
                 </tbody>
               </table>
             </div>
           </div>
         </main>
       </div>
+
+      {/* Add Next of Kin Modal */}
+      <AddNextOfKinModal
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddNextOfKin}
+      />
+
+      {/* Edit Next of Kin Modal */}
+      <AddNextOfKinModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingKin(null);
+        }}
+        onSave={handleUpdateNextOfKin}
+        editData={editingKin as any}
+        isEditMode={true}
+      />
     </div>
   );
 }
