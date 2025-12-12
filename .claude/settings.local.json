@@ -18,7 +18,19 @@
       "Bash(\"/c/Program Files/PostgreSQL/15/bin/psql\" -U postgres -h localhost -c \"CREATE DATABASE fdms;\")",
       "Bash(curl http://10.11.20.2:8001/)",
       "Bash(git init:*)",
-      "Bash(git add:*)"
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git remote add:*)",
+      "Bash(git remote set-url:*)",
+      "Bash(git push:*)",
+      "Bash(netstat:*)",
+      "Bash(findstr:*)",
+      "Bash(taskkill:*)",
+      "Bash(touch:*)",
+      "Bash(find:*)",
+      "Bash(awk:*)",
+      "Bash(timeout 3 bash -c \"while taskkill //F //IM python.exe 2>/dev/null; do sleep 0.5; done\")",
+      "Bash(timeout 2 bash -c \"while taskkill //F //IM python.exe 2>/dev/null; do sleep 0.3; done\")"
     ],
     "deny": [],
     "ask": []

@@ -31,3 +31,22 @@ body {
     text-wrap: balance;
   }
 }
+
+/* Force black text in all inputs, selects, and textareas */
+@layer base {
+  input,
+  select,
+  textarea {
+    @apply text-gray-900 !important;
+  }
+
+  input::placeholder,
+  textarea::placeholder {
+    @apply text-gray-500 !important;
+  }
+
+  /* Ensure dropdown options are black */
+  option {
+    @apply text-gray-900 !important;
+  }
+}
