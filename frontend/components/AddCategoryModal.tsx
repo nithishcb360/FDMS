@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { CategoryData } from '@/lib/api/categories';
+import { CategoryData, categoriesApi } from '@/lib/api/categories';
 
 interface AddCategoryModalProps {
   isOpen: boolean;
@@ -33,22 +33,35 @@ export default function AddCategoryModal({ isOpen, onClose, onSave, editData, is
   };
 
   const [formData, setFormData] = useState<CategoryFormData>(initialFormData);
+  const [existingCategories, setExistingCategories] = useState<CategoryData[]>([]);
 
   useEffect(() => {
-    if (isEditMode && editData) {
-      setFormData({
-        category_id: editData.category_id || '',
-        category_name: editData.category_name || '',
-        category_type: editData.category_type || '',
-        parent_category: editData.parent_category || '',
-        description: editData.description || '',
-        display_order: editData.display_order || 0,
-        status: editData.status || 'Active',
-      });
-    } else {
-      setFormData(initialFormData);
+    if (isOpen) {
+      fetchCategories();
+      if (isEditMode && editData) {
+        setFormData({
+          category_id: editData.category_id || '',
+          category_name: editData.category_name || '',
+          category_type: editData.category_type || '',
+          parent_category: editData.parent_category || '',
+          description: editData.description || '',
+          display_order: editData.display_order || 0,
+          status: editData.status || 'Active',
+        });
+      } else {
+        setFormData(initialFormData);
+      }
     }
   }, [isEditMode, editData, isOpen]);
+
+  const fetchCategories = async () => {
+    try {
+      const data = await categoriesApi.getAll();
+      setExistingCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
+    }
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -73,9 +86,9 @@ export default function AddCategoryModal({ isOpen, onClose, onSave, editData, is
     'Burial Vault',
     'Memorial Products',
     'Funeral Supplies',
-    'Stationery',
-    'Embalming',
-    'Transportation',
+    'Equipment',
+    'Vehicle Parts',
+    'Stationery & Programs',
     'Other',
   ];
 
@@ -180,6 +193,11 @@ export default function AddCategoryModal({ isOpen, onClose, onSave, editData, is
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   >
                     <option value="">---------</option>
+                    {existingCategories.map((cat) => (
+                      <option key={cat.id} value={cat.category_name}>
+                        {cat.category_name}
+                      </option>
+                    ))}
                   </select>
                   <div className="flex items-start gap-2 mt-2">
                     <div className="w-4 h-4 rounded-full bg-blue-100 flex items-center justify-center flex-shrink-0 mt-0.5">

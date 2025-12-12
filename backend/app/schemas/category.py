@@ -4,7 +4,6 @@ from datetime import datetime
 
 
 class CategoryBase(BaseModel):
-    category_id: str
     category_name: str
     category_type: str
     parent_category: Optional[str] = None
@@ -14,7 +13,7 @@ class CategoryBase(BaseModel):
 
 
 class CategoryCreate(CategoryBase):
-    pass
+    category_id: Optional[str] = None
 
 
 class CategoryUpdate(BaseModel):
@@ -29,6 +28,7 @@ class CategoryUpdate(BaseModel):
 
 class CategoryResponse(CategoryBase):
     id: int
+    category_id: str
     created_at: Optional[datetime] = None
     updated_at: Optional[datetime] = None
 
