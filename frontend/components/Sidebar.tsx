@@ -127,19 +127,19 @@ export default function Sidebar() {
             </button>
             {expandedSections.includes('services') && (
               <div className="bg-slate-800/50 py-1">
-                <a href="/service-schedules" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-schedules') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/services/schedules" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-schedules') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm2-7h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11z"/></svg>
                   Service Schedules
                 </a>
-                <a href="/arrangements" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/arrangements') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/services/arrangements" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/arrangements') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
                   Arrangements
                 </a>
-                <a href="/venue-bookings" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/venue-bookings') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/services/venue-bookings" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/venue-bookings') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                   Venue Bookings
                 </a>
-                <a href="/service-addons" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-addons') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/services/add-ons" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-addons') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M11 9h2V6h3V4h-3V1h-2v3H8v2h3v3zm-4 9c-1.1 0-1.99.9-1.99 2S5.9 22 7 22s2-.9 2-2-.9-2-2-2zm10 0c-1.1 0-1.99.9-1.99 2s.89 2 1.99 2 2-.9 2-2-.9-2-2-2zm-9.83-3.25l.03-.12.9-1.63h7.45c.75 0 1.41-.41 1.75-1.03l3.86-7.01L19.42 4h-.01l-1.1 2-2.76 5H8.53l-.13-.27L6.16 6l-.95-2-.94-2H1v2h2l3.6 7.59-1.35 2.45c-.16.28-.25.61-.25.96 0 1.1.9 2 2 2h12v-2H7.42c-.13 0-.25-.11-.25-.25z"/></svg>
                   Service Add-ons
                 </a>
