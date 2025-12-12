@@ -45,9 +45,13 @@ def get_service_addons(
         query = query.filter(ServiceAddon.category == category)
 
     if status and status != "All Statuses":
-        query = query.filter(ServiceAddon.status == status)
+        # Map old status names to is_active boolean
+        if status == "Active":
+            query = query.filter(ServiceAddon.is_active == True)
+        elif status == "Inactive":
+            query = query.filter(ServiceAddon.is_active == False)
 
-    addons = query.order_by(ServiceAddon.name).offset(skip).limit(limit).all()
+    addons = query.order_by(ServiceAddon.display_order, ServiceAddon.name).offset(skip).limit(limit).all()
     return addons
 
 
@@ -55,13 +59,13 @@ def get_service_addons(
 def get_service_addon_stats(db: Session = Depends(get_db)):
     """Get service add-on statistics"""
     total = db.query(ServiceAddon).count()
-    active = db.query(ServiceAddon).filter(ServiceAddon.status == "Active").count()
+    active = db.query(ServiceAddon).filter(ServiceAddon.is_active == True).count()
 
     # Count unique categories
     categories = db.query(func.count(func.distinct(ServiceAddon.category))).scalar()
 
     # Calculate average price
-    avg_price_result = db.query(func.avg(ServiceAddon.price)).scalar()
+    avg_price_result = db.query(func.avg(ServiceAddon.unit_price)).scalar()
     avg_price = float(avg_price_result) if avg_price_result else 0.00
 
     return {

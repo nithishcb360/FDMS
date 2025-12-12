@@ -282,7 +282,9 @@ export default function ServiceAddOnsPage() {
                         )}
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{addon.category || 'N/A'}</td>
-                      <td className="px-4 py-3 text-sm font-medium text-gray-900">${addon.unit_price?.toFixed(2) || '0.00'}</td>
+                      <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                        ${typeof addon.unit_price === 'number' ? addon.unit_price.toFixed(2) : parseFloat(addon.unit_price as any || '0').toFixed(2)}
+                      </td>
                       <td className="px-4 py-3 text-sm text-gray-600">{addon.unit_of_measure || 'N/A'}</td>
                       <td className="px-4 py-3">
                         <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full border ${
