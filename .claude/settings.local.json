@@ -32,7 +32,8 @@
       "Bash(timeout 3 bash -c \"while taskkill //F //IM python.exe 2>/dev/null; do sleep 0.5; done\")",
       "Bash(timeout 2 bash -c \"while taskkill //F //IM python.exe 2>/dev/null; do sleep 0.3; done\")",
       "Bash(rm:*)",
-      "Bash(del nul)"
+      "Bash(del nul)",
+      "Bash(cat:*)"
     ],
     "deny": [],
     "ask": []

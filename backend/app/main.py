@@ -2,14 +2,18 @@ from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from .core.config import settings
 from .core.database import engine, Base
-from .api import contact, cases, schedules, arrangements, venue_bookings, service_addons
-from .api import contact, cases
+from .api import contact, cases, arrangements, venue_bookings, service_addons
+from .api import schedules as case_schedules_api
 from .api import next_of_kin as next_of_kin_api
 from .api import case_notes as case_notes_api
 from .api import assignments as assignments_api
 from .api import products as products_api
 from .api import categories as categories_api
 from .api import suppliers as suppliers_api
+from .api import staff as staff_api
+from .api import tasks as tasks_api
+from .api import staff_schedules as staff_schedules_api
+from .api import time_logs as time_logs_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -19,6 +23,10 @@ from .models import assignment as assignment_model
 from .models import product as product_model
 from .models import category as category_model
 from .models import supplier as supplier_model
+from .models import staff as staff_model
+from .models import task as task_model
+from .models import schedule as staff_schedule_model
+from .models import time_log as time_log_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -42,7 +50,7 @@ app.add_middleware(
 # Include routers
 app.include_router(contact.router, prefix="/api")
 app.include_router(cases.router, prefix="/api/cases", tags=["cases"])
-app.include_router(schedules.router, prefix="/api/schedules", tags=["schedules"])
+app.include_router(case_schedules_api.router, prefix="/api/schedules", tags=["schedules"])
 app.include_router(arrangements.router, prefix="/api/arrangements", tags=["arrangements"])
 app.include_router(venue_bookings.router, prefix="/api/venue-bookings", tags=["venue-bookings"])
 app.include_router(service_addons.router, prefix="/api/service-addons", tags=["service-addons"])
@@ -52,6 +60,10 @@ app.include_router(assignments_api.router, prefix="/api/assignments", tags=["ass
 app.include_router(products_api.router, prefix="/api/products", tags=["products"])
 app.include_router(categories_api.router, prefix="/api/categories", tags=["categories"])
 app.include_router(suppliers_api.router, prefix="/api/suppliers", tags=["suppliers"])
+app.include_router(staff_api.router, prefix="/api/staff", tags=["staff"])
+app.include_router(tasks_api.router, prefix="/api/tasks", tags=["tasks"])
+app.include_router(staff_schedules_api.router, prefix="/api/staff-schedules", tags=["staff-schedules"])
+app.include_router(time_logs_api.router, prefix="/api/time-logs", tags=["time-logs"])
 
 
 @app.get("/")
