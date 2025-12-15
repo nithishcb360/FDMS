@@ -11,17 +11,23 @@ interface NewFuelLogModalProps {
 }
 
 const FUEL_TYPES = ['Gasoline', 'Diesel', 'Electric', 'Hybrid'];
+const PAYMENT_METHODS = ['Cash', 'Credit Card', 'Debit Card', 'Fleet Card', 'Mobile Payment'];
 
 export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: NewFuelLogModalProps) {
   const [formData, setFormData] = useState({
     vehicle_id: '',
     date: new Date().toISOString().split('T')[0],
-    fuel_type: 'Gasoline',
-    quantity: '',
-    cost: '',
-    station: '',
+    time: '',
     odometer_reading: '',
-    mpg: '',
+    full_tank: false,
+    fuel_type: '',
+    quantity: '',
+    price_per_gallon: '',
+    station: '',
+    station_location: '',
+    payment_method: 'Credit Card',
+    receipt_number: '',
+    filled_by: '',
     notes: '',
   });
   const [submitting, setSubmitting] = useState(false);
@@ -33,12 +39,17 @@ export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: N
       setFormData({
         vehicle_id: '',
         date: new Date().toISOString().split('T')[0],
-        fuel_type: 'Gasoline',
-        quantity: '',
-        cost: '',
-        station: '',
+        time: '',
         odometer_reading: '',
-        mpg: '',
+        full_tank: false,
+        fuel_type: '',
+        quantity: '',
+        price_per_gallon: '',
+        station: '',
+        station_location: '',
+        payment_method: 'Credit Card',
+        receipt_number: '',
+        filled_by: '',
         notes: '',
       });
       loadVehicles();
@@ -47,7 +58,7 @@ export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: N
 
   const loadVehicles = async () => {
     try {
-      const data = await vehiclesApi.getAll({ status: 'Available' });
+      const data = await vehiclesApi.getAll();
       setVehicles(data);
     } catch (error) {
       console.error('Error loading vehicles:', error);
@@ -61,15 +72,16 @@ export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: N
     setSubmitting(true);
 
     try {
+      const totalCost = parseFloat(formData.quantity) * parseFloat(formData.price_per_gallon);
+
       await fuelLogsApi.create({
         vehicle_id: parseInt(formData.vehicle_id),
         date: formData.date,
         fuel_type: formData.fuel_type,
         quantity: parseFloat(formData.quantity),
-        cost: parseFloat(formData.cost),
+        cost: totalCost,
         station: formData.station || undefined,
         odometer_reading: formData.odometer_reading ? parseInt(formData.odometer_reading) : undefined,
-        mpg: formData.mpg ? parseFloat(formData.mpg) : undefined,
         notes: formData.notes || undefined,
       });
       alert('Fuel log created successfully!');
@@ -84,13 +96,19 @@ export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: N
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
-    const { name, value } = e.target;
-    setFormData({ ...formData, [name]: value });
+    const { name, value, type } = e.target;
+
+    if (type === 'checkbox') {
+      const checkbox = e.target as HTMLInputElement;
+      setFormData({ ...formData, [name]: checkbox.checked });
+    } else {
+      setFormData({ ...formData, [name]: value });
+    }
   };
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-start justify-center overflow-y-auto py-8">
-      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl w-full max-w-2xl mx-4">
+      <form onSubmit={handleSubmit} className="bg-white rounded-lg shadow-xl w-full max-w-3xl mx-4">
         {/* Header */}
         <div className="border-b border-gray-200 px-6 py-4">
           <div className="flex items-center gap-2">
@@ -99,163 +117,273 @@ export default function NewFuelLogModal({ isOpen, onClose, onFuelLogCreated }: N
             </svg>
             <div>
               <h2 className="text-xl font-bold text-gray-800">New Fuel Log</h2>
-              <p className="text-sm text-gray-600">Record a new fuel transaction</p>
+              <p className="text-sm text-gray-600">Record a new fuel fill-up</p>
             </div>
           </div>
         </div>
 
         {/* Form Content */}
         <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {/* Vehicle */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vehicle <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="vehicle_id"
-                value={formData.vehicle_id}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              >
-                <option value="">Select a vehicle</option>
-                {vehicles.map((vehicle) => (
-                  <option key={vehicle.id} value={vehicle.id}>
-                    {vehicle.year} {vehicle.make} {vehicle.model} - {vehicle.license_plate}
-                  </option>
-                ))}
-              </select>
-            </div>
+          {/* Basic Information */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Basic Information</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Vehicle */}
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Vehicle <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="vehicle_id"
+                  value={formData.vehicle_id}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                >
+                  <option value="">---------</option>
+                  {vehicles.map((vehicle) => (
+                    <option key={vehicle.id} value={vehicle.id}>
+                      {vehicle.year} {vehicle.make} {vehicle.model} - {vehicle.license_plate}
+                    </option>
+                  ))}
+                </select>
+              </div>
 
-            {/* Date */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date <span className="text-red-500">*</span>
-              </label>
-              <input
-                type="date"
-                name="date"
-                value={formData.date}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              />
-            </div>
+              {/* Fill Date */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fill Date <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="date"
+                  name="date"
+                  value={formData.date}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                />
+              </div>
 
-            {/* Fuel Type */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Fuel Type <span className="text-red-500">*</span>
-              </label>
-              <select
-                name="fuel_type"
-                value={formData.fuel_type}
-                onChange={handleChange}
-                required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              >
-                {FUEL_TYPES.map((type) => (
-                  <option key={type} value={type}>{type}</option>
-                ))}
-              </select>
-            </div>
+              {/* Fill Time */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Fill Time</label>
+                <input
+                  type="time"
+                  name="time"
+                  value={formData.time}
+                  onChange={handleChange}
+                  placeholder="--:--"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                />
+              </div>
 
-            {/* Quantity */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Quantity <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-2">
+              {/* Odometer Reading */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Odometer Reading <span className="text-red-500">*</span>
+                </label>
                 <input
                   type="number"
-                  name="quantity"
-                  value={formData.quantity}
+                  name="odometer_reading"
+                  value={formData.odometer_reading}
                   onChange={handleChange}
                   required
                   min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                  placeholder="Current mileage at fill-up"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
                 />
-                <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">gal</span>
               </div>
-            </div>
 
-            {/* Cost */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cost <span className="text-red-500">*</span>
-              </label>
-              <div className="flex gap-2">
-                <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">$</span>
-                <input
-                  type="number"
-                  name="cost"
-                  value={formData.cost}
+              {/* Full Tank Checkbox */}
+              <div className="flex items-center">
+                <label className="flex items-center gap-2 cursor-pointer mt-6">
+                  <input
+                    type="checkbox"
+                    name="full_tank"
+                    checked={formData.full_tank}
+                    onChange={handleChange}
+                    className="w-4 h-4 text-blue-600 border-gray-300 rounded focus:ring-blue-500"
+                  />
+                  <span className="text-sm font-medium text-gray-700">Full Tank Fill-up</span>
+                </label>
+              </div>
+              <p className="text-xs text-gray-500 md:col-span-2 -mt-2">Check if tank was filled completely</p>
+            </div>
+          </div>
+
+          {/* Fuel Details */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Fuel Details</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Fuel Type */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Fuel Type <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="fuel_type"
+                  value={formData.fuel_type}
                   onChange={handleChange}
                   required
-                  min="0"
-                  step="0.01"
-                  placeholder="0.00"
-                  className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                >
+                  <option value="">---------</option>
+                  {FUEL_TYPES.map((type) => (
+                    <option key={type} value={type}>{type}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Quantity */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Quantity <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    name="quantity"
+                    value={formData.quantity}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                    step="0.01"
+                    placeholder="0.00"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                  />
+                  <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">gal</span>
+                </div>
+              </div>
+
+              {/* Price per Gallon */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Price per Gallon <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-2">
+                  <span className="px-3 py-2 bg-gray-100 border border-gray-300 rounded-lg text-gray-700">$</span>
+                  <input
+                    type="number"
+                    name="price_per_gallon"
+                    value={formData.price_per_gallon}
+                    onChange={handleChange}
+                    required
+                    min="0"
+                    step="0.001"
+                    placeholder="0.000"
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                  />
+                </div>
+              </div>
+            </div>
+          </div>
+
+          {/* Station & Payment */}
+          <div className="mb-6">
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Station & Payment</h3>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {/* Station Name */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Station Name <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="station"
+                  value={formData.station}
+                  onChange={handleChange}
+                  required
+                  placeholder="e.g., Shell, BP, Exxon"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                />
+              </div>
+
+              {/* Station Location */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Station Location</label>
+                <input
+                  type="text"
+                  name="station_location"
+                  value={formData.station_location}
+                  onChange={handleChange}
+                  placeholder="City or address"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                />
+              </div>
+
+              {/* Payment Method */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Payment Method <span className="text-red-500">*</span>
+                </label>
+                <select
+                  name="payment_method"
+                  value={formData.payment_method}
+                  onChange={handleChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                >
+                  {PAYMENT_METHODS.map((method) => (
+                    <option key={method} value={method}>{method}</option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Receipt Number */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Receipt Number</label>
+                <input
+                  type="text"
+                  name="receipt_number"
+                  value={formData.receipt_number}
+                  onChange={handleChange}
+                  placeholder="Optional"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
                 />
               </div>
             </div>
+          </div>
 
-            {/* Station */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Station</label>
-              <input
-                type="text"
-                name="station"
-                value={formData.station}
-                onChange={handleChange}
-                placeholder="Gas station name/location"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              />
-            </div>
+          {/* Additional Information */}
+          <div>
+            <h3 className="font-semibold text-gray-800 mb-4 pb-2 border-b border-gray-200">Additional Information</h3>
+            <div className="grid grid-cols-1 gap-4">
+              {/* Filled By */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Filled By</label>
+                <select
+                  name="filled_by"
+                  value={formData.filled_by}
+                  onChange={handleChange}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
+                >
+                  <option value="">---------</option>
+                  <option value="Driver">Driver</option>
+                  <option value="Fleet Manager">Fleet Manager</option>
+                  <option value="Mechanic">Mechanic</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
 
-            {/* Odometer Reading */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">Odometer Reading</label>
-              <input
-                type="number"
-                name="odometer_reading"
-                value={formData.odometer_reading}
-                onChange={handleChange}
-                min="0"
-                placeholder="Miles"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              />
-            </div>
+              {/* Notes */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
+                <textarea
+                  name="notes"
+                  value={formData.notes}
+                  onChange={handleChange}
+                  placeholder="Additional notes about this fuel transaction"
+                  rows={3}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-gray-900"
+                />
+              </div>
 
-            {/* MPG */}
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-2">MPG</label>
-              <input
-                type="number"
-                name="mpg"
-                value={formData.mpg}
-                onChange={handleChange}
-                min="0"
-                step="0.1"
-                placeholder="Miles per gallon"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900"
-              />
-            </div>
-
-            {/* Notes */}
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
-              <textarea
-                name="notes"
-                value={formData.notes}
-                onChange={handleChange}
-                placeholder="Additional notes about this fuel transaction"
-                rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-gray-900"
-              />
+              {/* Tip */}
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                <p className="text-sm text-blue-800">
+                  <span className="font-semibold">Tip:</span> Fuel efficiency (MPG) is automatically calculated when you record consecutive full tank fill-ups for the same vehicle.
+                </p>
+              </div>
             </div>
           </div>
         </div>
