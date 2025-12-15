@@ -27,12 +27,19 @@ def get_category(category_id: int, db: Session = Depends(get_db)):
 @router.post("/", response_model=CategoryResponse)
 def create_category(category: CategoryCreate, db: Session = Depends(get_db)):
     """Create a new category"""
+    # Auto-generate category_id if not provided
+    category_data = category.model_dump()
+    if not category_data.get('category_id'):
+        # Generate category_id from category_name (e.g., "Caskets - Metal" -> "CAT001")
+        category_count = db.query(Category).count()
+        category_data['category_id'] = f"CAT{str(category_count + 1).zfill(3)}"
+
     # Check if category_id already exists
-    existing = db.query(Category).filter(Category.category_id == category.category_id).first()
+    existing = db.query(Category).filter(Category.category_id == category_data['category_id']).first()
     if existing:
         raise HTTPException(status_code=400, detail="Category ID already exists")
 
-    db_category = Category(**category.model_dump())
+    db_category = Category(**category_data)
     db.add(db_category)
     db.commit()
     db.refresh(db_category)
