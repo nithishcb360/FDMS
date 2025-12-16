@@ -275,6 +275,21 @@ export default function AddInvoiceModal({ isOpen, onClose, onSave, invoice }: Ad
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">
+                  Invoice Number <span className="text-red-500">*</span>
+                </label>
+                <input
+                  type="text"
+                  name="invoice_number"
+                  value={formData.invoice_number}
+                  onChange={handleChange}
+                  className={'w-full px-3 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ' + (errors.invoice_number ? 'border-red-500' : 'border-gray-300')}
+                  placeholder="INV-001"
+                />
+                {errors.invoice_number && <p className="text-red-500 text-xs mt-1">{errors.invoice_number}</p>}
+              </div>
+
+              <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">Case Reference</label>
                 <input
                   type="text"
