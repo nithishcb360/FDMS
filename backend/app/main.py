@@ -14,6 +14,7 @@ from .api import staff as staff_api
 from .api import tasks as tasks_api
 from .api import staff_schedules as staff_schedules_api
 from .api import time_logs as time_logs_api
+from .api import invoices as invoices_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -27,6 +28,7 @@ from .models import staff as staff_model
 from .models import task as task_model
 from .models import schedule as staff_schedule_model
 from .models import time_log as time_log_model
+from .models import invoice as invoice_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -64,6 +66,7 @@ app.include_router(staff_api.router, prefix="/api/staff", tags=["staff"])
 app.include_router(tasks_api.router, prefix="/api/tasks", tags=["tasks"])
 app.include_router(staff_schedules_api.router, prefix="/api/staff-schedules", tags=["staff-schedules"])
 app.include_router(time_logs_api.router, prefix="/api/time-logs", tags=["time-logs"])
+app.include_router(invoices_api.router, prefix="/api/invoices", tags=["invoices"])
 
 
 @app.get("/")
