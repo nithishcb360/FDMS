@@ -18,6 +18,10 @@ from .api import invoices as invoices_api
 from .api import payments as payments_api
 from .api import expenses as expenses_api
 from .api import transactions as transactions_api
+from .api import families as families_api
+from .api import communications as communications_api
+from .api import followups as followups_api
+from .api import preneeds as preneeds_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -35,6 +39,10 @@ from .models import invoice as invoice_model
 from .models import payment as payment_model
 from .models import expense as expense_model
 from .models import transaction as transaction_model
+from .models import family as family_model
+from .models import communication as communication_model
+from .models import followup as followup_model
+from .models import preneed as preneed_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -76,6 +84,10 @@ app.include_router(invoices_api.router, prefix="/api/invoices", tags=["invoices"
 app.include_router(payments_api.router, prefix="/api/payments", tags=["payments"])
 app.include_router(expenses_api.router, prefix="/api/expenses", tags=["expenses"])
 app.include_router(transactions_api.router, prefix="/api/transactions", tags=["transactions"])
+app.include_router(families_api.router, prefix="/api/families", tags=["families"])
+app.include_router(communications_api.router, prefix="/api/communications", tags=["communications"])
+app.include_router(followups_api.router, prefix="/api/followups", tags=["followups"])
+app.include_router(preneeds_api.router, prefix="/api/preneeds", tags=["preneeds"])
 
 
 @app.get("/")
