@@ -23,6 +23,7 @@ from .api import families as families_api
 from .api import communications as communications_api
 from .api import followups as followups_api
 from .api import preneeds as preneeds_api
+from .api import branches as branches_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -47,6 +48,7 @@ from .models import family as family_model
 from .models import communication as communication_model
 from .models import followup as followup_model
 from .models import preneed as preneed_model
+from .models import branch as branch_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -95,6 +97,7 @@ app.include_router(families_api.router, prefix="/api/families", tags=["families"
 app.include_router(communications_api.router, prefix="/api/communications", tags=["communications"])
 app.include_router(followups_api.router, prefix="/api/followups", tags=["followups"])
 app.include_router(preneeds_api.router, prefix="/api/preneeds", tags=["preneeds"])
+app.include_router(branches_api.router, prefix="/api/branches", tags=["branches"])
 
 
 @app.get("/")
