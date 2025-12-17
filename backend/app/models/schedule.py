@@ -1,39 +1,31 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, ForeignKey, Boolean
-from sqlalchemy.orm import relationship
+from sqlalchemy import Column, Integer, String, Date, Time, Boolean, Text, DateTime
 from sqlalchemy.sql import func
 from app.core.database import Base
 
-
 class Schedule(Base):
-    __tablename__ = "schedules"
+    __tablename__ = "staff_schedules"
 
     id = Column(Integer, primary_key=True, index=True)
-    case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
 
-    # Event Details
-    event_type = Column(String(100), nullable=False)  # Reception, Burial, Viewing/Visitation, Preparation, Other Event
-    title = Column(String(200), nullable=False)
-    description = Column(Text, nullable=True)
+    # Basic Information
+    staff_member_id = Column(Integer, nullable=False)  # Reference to staff member
+    staff_member_name = Column(String(200), nullable=False)  # Stored for display
+    shift_date = Column(Date, nullable=False)
+    shift_type = Column(String(50), nullable=False)  # Day Shift, Evening Shift, Night Shift, On-Call, Split Shift
+    status = Column(String(50), nullable=False, default="Scheduled")  # Scheduled, Confirmed, Completed, Cancelled, No Show
 
-    # Date & Time
-    start_datetime = Column(DateTime(timezone=True), nullable=False)
-    end_datetime = Column(DateTime(timezone=True), nullable=False)
+    # Timing
+    start_time = Column(Time, nullable=False)
+    end_time = Column(Time, nullable=False)
+    break_duration = Column(Integer, nullable=True, default=30)  # in minutes
 
-    # Location
-    venue = Column(String(200), nullable=True)
-    location_details = Column(Text, nullable=True)
+    # Special Designations
+    is_overtime = Column(Boolean, default=False)
+    is_holiday = Column(Boolean, default=False)
 
-    # Staff & Notes
-    assigned_staff = Column(Text, nullable=True)  # Comma-separated staff IDs or names
+    # Additional Notes
     notes = Column(Text, nullable=True)
-    setup_notes = Column(Text, nullable=True)
-
-    # Status
-    confirmation_status = Column(Boolean, default=False)  # True = "Yes, Confirmed", False = "Not Confirmed"
 
     # Timestamps
     created_at = Column(DateTime(timezone=True), server_default=func.now())
     updated_at = Column(DateTime(timezone=True), onupdate=func.now())
-
-    # Relationship
-    case = relationship("Case", backref="schedules")
