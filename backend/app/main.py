@@ -31,6 +31,7 @@ from .api import tax_codes as tax_codes_api
 from .api import payment_modes as payment_modes_api
 from .api import religious_rites as religious_rites_api
 from .api import document_types as document_types_api
+from .api import auth as auth_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -63,6 +64,7 @@ from .models import tax_code as tax_code_model
 from .models import payment_mode as payment_mode_model
 from .models import religious_rite as religious_rite_model
 from .models import document_type as document_type_model
+from .models import user as user_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -119,6 +121,7 @@ app.include_router(tax_codes_api.router, prefix="/api/tax-codes", tags=["tax-cod
 app.include_router(payment_modes_api.router, prefix="/api/payment-modes", tags=["payment-modes"])
 app.include_router(religious_rites_api.router, prefix="/api/religious-rites", tags=["religious-rites"])
 app.include_router(document_types_api.router, prefix="/api/document-types", tags=["document-types"])
+app.include_router(auth_api.router, prefix="/api/auth", tags=["authentication"])
 
 
 @app.get("/")
@@ -129,3 +132,14 @@ def root():
 @app.get("/health")
 def health_check():
     return {"status": "healthy"}
+
+
+@app.get("/test-auth-loaded")
+def test_auth():
+    """Test if auth router is loaded"""
+    auth_routes = [route.path for route in app.routes if hasattr(route, 'path') and '/auth' in route.path]
+    return {
+        "auth_routes_loaded": len(auth_routes) > 0,
+        "auth_routes": auth_routes,
+        "total_routes": len(app.routes)
+    }
