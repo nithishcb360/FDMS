@@ -35,7 +35,9 @@
       "Bash(del nul)",
       "Bash(cat:*)",
       "Bash(del D:FDMScreate_invoices_page.py)",
-      "Bash(timeout 2 bash -c \"while taskkill //F //IM node.exe 2>/dev/null; do sleep 0.3; done\")"
+      "Bash(timeout 2 bash -c \"while taskkill //F //IM node.exe 2>/dev/null; do sleep 0.3; done\")",
+      "Bash(npm run build:*)",
+      "Bash(npx tsc:*)"
     ],
     "deny": [],
     "ask": []
