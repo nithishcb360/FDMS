@@ -277,19 +277,19 @@ export default function Sidebar() {
             </button>
             {expandedSections.includes('finance') && (
               <div className="bg-slate-800/50 py-1">
-                <a href="/invoices" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/invoices') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/finance/invoices" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/finance/invoices') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                   Invoices
                 </a>
-                <a href="/payments" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/payments') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/finance/payments" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/finance/payments') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                   Payments
                 </a>
-                <a href="/expenses" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/expenses') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/finance/expenses" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/finance/expenses') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M11.8 10.9c-2.27-.59-3-1.2-3-2.15 0-1.09 1.01-1.85 2.7-1.85 1.78 0 2.44.85 2.5 2.1h2.21c-.07-1.72-1.12-3.3-3.21-3.81V3h-3v2.16c-1.94.42-3.5 1.68-3.5 3.61 0 2.31 1.91 3.46 4.7 4.13 2.5.6 3 1.48 3 2.41 0 .69-.49 1.79-2.7 1.79-2.06 0-2.87-.92-2.98-2.1h-2.2c.12 2.19 1.76 3.42 3.68 3.83V21h3v-2.15c1.95-.37 3.5-1.5 3.5-3.55 0-2.84-2.43-3.81-4.7-4.4z"/></svg>
                   Expenses
                 </a>
-                <a href="/transactions" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/transactions') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/finance/transactions" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/finance/transactions') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 6l2.29 2.29-4.88 4.88-4-4L2 16.59 3.41 18l6-6 4 4 6.3-6.29L22 12V6z"/></svg>
                   Transactions
                 </a>
@@ -312,19 +312,19 @@ export default function Sidebar() {
             </button>
             {expandedSections.includes('crm') && (
               <div className="bg-slate-800/50 py-1">
-                <a href="/families" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/families') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/crm/families" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/crm/families') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3z"/></svg>
                   Families
                 </a>
-                <a href="/communications" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/communications') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/crm/communications" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/crm/communications') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 2H4c-1.1 0-1.99.9-1.99 2L2 22l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zM6 9h12v2H6V9zm8 5H6v-2h8v2zm4-6H6V6h12v2z"/></svg>
                   Communications
                 </a>
-                <a href="/followups" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/followups') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/crm/followups" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/crm/followups') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
                   Follow-ups
                 </a>
-                <a href="/preneed-plans" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/preneed-plans') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/crm/preneed" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/crm/preneed') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                   Pre-need Plans
                 </a>
