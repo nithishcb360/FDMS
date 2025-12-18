@@ -11,6 +11,9 @@ from .api import categories as categories_api
 from .api import vehicle_assignments
 from .api import fuel_logs
 from .api import suppliers as suppliers_api
+from .api import documents
+from .api import document_types
+from .api import document_templates
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -23,6 +26,9 @@ from .models import vehicle as vehicle_model
 from .models import vehicle_assignment as vehicle_assignment_model
 from .models import fuel_log as fuel_log_model
 from .models import supplier as supplier_model
+from .models import document as document_model
+from .models import document_type as document_type_model
+from .models import document_template as document_template_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -59,6 +65,9 @@ app.include_router(vehicles.router, prefix="/api/vehicles", tags=["vehicles"])
 app.include_router(vehicle_assignments.router, prefix="/api/vehicle-assignments", tags=["vehicle-assignments"])
 app.include_router(fuel_logs.router, prefix="/api/fuel-logs", tags=["fuel-logs"])
 app.include_router(suppliers_api.router, prefix="/api/suppliers", tags=["suppliers"])
+app.include_router(documents.router, prefix="/api/documents", tags=["documents"])
+app.include_router(document_types.router)
+app.include_router(document_templates.router)
 
 
 @app.get("/")
