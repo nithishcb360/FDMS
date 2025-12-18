@@ -2,11 +2,37 @@
 
 import { useState, useRef, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import { getCurrentUser, UserResponse } from '@/lib/api';
 
 export default function DashboardHeader() {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
+  const [user, setUser] = useState<UserResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+
+  // Fetch user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          router.push('/signin');
+          return;
+        }
+        const userData = await getCurrentUser(token);
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+        localStorage.removeItem('access_token');
+        router.push('/signin');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
 
   // Close dropdown when clicking outside
   useEffect(() => {
@@ -26,6 +52,22 @@ export default function DashboardHeader() {
     localStorage.removeItem('access_token');
     router.push('/');
   };
+
+  if (loading) {
+    return (
+      <header className="bg-white shadow-lg border-b border-gray-200">
+        <div className="flex items-center justify-between px-6 py-4">
+          <div className="flex-1"></div>
+          <div className="flex items-center gap-4">
+            <div className="animate-pulse flex items-center gap-3">
+              <div className="w-10 h-10 rounded-full bg-gray-200"></div>
+              <div className="h-4 w-32 bg-gray-200 rounded"></div>
+            </div>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
     <header className="bg-white shadow-lg border-b border-gray-200">
@@ -48,7 +90,7 @@ export default function DashboardHeader() {
                 </svg>
               </div>
               <div className="text-sm">
-                <div className="font-medium text-gray-900">System Administrator</div>
+                <div className="font-medium text-gray-900">{user?.full_name || user?.email || 'User'}</div>
               </div>
               <svg className={`w-5 h-5 text-gray-600 transition-transform ${isDropdownOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
@@ -60,11 +102,18 @@ export default function DashboardHeader() {
               <div className="absolute right-0 mt-2 w-64 bg-white rounded-lg shadow-xl border border-gray-200 py-2 z-50">
                 {/* User Info Section */}
                 <div className="px-4 py-3 border-b border-gray-200">
-                  <div className="font-semibold text-gray-900">System Administrator</div>
-                  <div className="text-sm text-gray-600">admin@funeral.com</div>
-                  <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
-                    Super Admin
-                  </span>
+                  <div className="font-semibold text-gray-900">{user?.full_name || user?.email || 'User'}</div>
+                  <div className="text-sm text-gray-600">{user?.email}</div>
+                  {user?.is_superuser && (
+                    <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-yellow-100 text-yellow-800 text-xs font-semibold rounded-full">
+                      Super Admin
+                    </span>
+                  )}
+                  {!user?.is_superuser && (
+                    <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-blue-100 text-blue-800 text-xs font-semibold rounded-full">
+                      User
+                    </span>
+                  )}
                 </div>
 
                 {/* Menu Items */}

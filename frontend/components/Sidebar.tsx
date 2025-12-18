@@ -1,13 +1,38 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { usePathname } from 'next/navigation';
+import { usePathname, useRouter } from 'next/navigation';
+import { getCurrentUser, UserResponse } from '@/lib/api';
 
 export default function Sidebar() {
   const [isOpen, setIsOpen] = useState(false);
   const [expandedSections, setExpandedSections] = useState<string[]>(['dashboard']);
   const [mounted, setMounted] = useState(false);
+  const [user, setUser] = useState<UserResponse | null>(null);
+  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
+  const router = useRouter();
+
+  // Fetch user data
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          router.push('/signin');
+          return;
+        }
+        const userData = await getCurrentUser(token);
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
 
   useEffect(() => {
     setMounted(true);
@@ -52,19 +77,35 @@ export default function Sidebar() {
 
         {/* User Info */}
         <div className="p-4 border-b border-slate-600">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center">
-              <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
-              </svg>
-            </div>
-            <div className="flex-1">
-              <div className="font-semibold text-sm">System Administrator</div>
-              <div className="px-2 py-0.5 bg-yellow-500 text-slate-900 text-xs font-bold rounded inline-block mt-1">
-                Super Admin
+          {loading ? (
+            <div className="flex items-center gap-3 animate-pulse">
+              <div className="w-10 h-10 bg-slate-600 rounded-full"></div>
+              <div className="flex-1">
+                <div className="h-4 bg-slate-600 rounded w-24 mb-2"></div>
+                <div className="h-3 bg-slate-600 rounded w-16"></div>
               </div>
             </div>
-          </div>
+          ) : (
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-yellow-600 rounded-full flex items-center justify-center">
+                <svg className="w-6 h-6" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/>
+                </svg>
+              </div>
+              <div className="flex-1">
+                <div className="font-semibold text-sm">{user?.full_name || user?.email || 'User'}</div>
+                {user?.is_superuser ? (
+                  <div className="px-2 py-0.5 bg-yellow-500 text-slate-900 text-xs font-bold rounded inline-block mt-1">
+                    Super Admin
+                  </div>
+                ) : (
+                  <div className="px-2 py-0.5 bg-blue-500 text-white text-xs font-bold rounded inline-block mt-1">
+                    User
+                  </div>
+                )}
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Navigation */}

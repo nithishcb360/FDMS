@@ -6,6 +6,7 @@ from ..core.security import (
     verify_password,
     get_password_hash,
     create_access_token,
+    get_current_user,
     ACCESS_TOKEN_EXPIRE_MINUTES,
 )
 from ..models.user import User
@@ -83,18 +84,16 @@ def login(user_credentials: UserLogin, db: Session = Depends(get_db)):
 
     return {
         "access_token": access_token,
-        "token_type": "bearer"
+        "token_type": "bearer",
+        "user": user
     }
 
 
 @router.get("/me", response_model=UserResponse)
-def get_current_user_info(db: Session = Depends(get_db)):
+def get_current_user_info(
+    current_user: User = Depends(get_current_user),
+):
     """
     Get current authenticated user information
     """
-    # TODO: Implement JWT token verification and user extraction
-    # This is a placeholder - you'll need to add authentication dependency
-    raise HTTPException(
-        status_code=status.HTTP_501_NOT_IMPLEMENTED,
-        detail="Endpoint not fully implemented yet"
-    )
+    return current_user
