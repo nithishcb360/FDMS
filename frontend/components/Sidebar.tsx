@@ -421,47 +421,47 @@ export default function Sidebar() {
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 7V3H2v18h20V7H12zM6 19H4v-2h2v2zm0-4H4v-2h2v2zm0-4H4V9h2v2zm0-4H4V5h2v2zm4 12H8v-2h2v2zm0-4H8v-2h2v2zm0-4H8V9h2v2zm0-4H8V5h2v2zm10 12h-8v-2h2v-2h-2v-2h2v-2h-2V9h8v10zm-2-8h-2v2h2v-2zm0 4h-2v2h2v-2z"/></svg>
                   Branches
                 </a>
-                <a href="/service-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/service-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/service-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M17 10.5V7c0-.55-.45-1-1-1H4c-.55 0-1 .45-1 1v10c0 .55.45 1 1 1h12c.55 0 1-.45 1-1v-3.5l4 4v-11l-4 4z"/></svg>
                   Service Types
                 </a>
-                <a href="/service-packages" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/service-packages') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/service-packages" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/service-packages') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 6h-2.18c.11-.31.18-.65.18-1 0-1.66-1.34-3-3-3-1.05 0-1.96.54-2.5 1.35l-.5.67-.5-.68C10.96 2.54 10.05 2 9 2 7.34 2 6 3.34 6 5c0 .35.07.69.18 1H4c-1.11 0-1.99.89-1.99 2L2 19c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V8c0-1.11-.89-2-2-2z"/></svg>
                   Service Packages
                 </a>
-                <a href="/venue-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/venue-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/venue-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/venue-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
                   Venue Types
                 </a>
-                <a href="/tax-codes" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/tax-codes') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/tax-codes" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/tax-codes') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1.95c-5.52 0-10 4.48-10 10s4.48 10 10 10h5v-2h-5c-4.34 0-8-3.66-8-8s3.66-8 8-8 8 3.66 8 8v1.43c0 .79-.71 1.57-1.5 1.57s-1.5-.78-1.5-1.57v-1.43c0-2.76-2.24-5-5-5s-5 2.24-5 5 2.24 5 5 5c1.38 0 2.64-.56 3.54-1.47.65.89 1.77 1.47 2.96 1.47 1.97 0 3.5-1.6 3.5-3.57v-1.43c0-5.52-4.48-10-10-10zm0 13c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3z"/></svg>
                   Tax Codes
                 </a>
-                <a href="/payment-modes" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/payment-modes') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/payment-modes" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/payment-modes') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M20 4H4c-1.11 0-1.99.89-1.99 2L2 18c0 1.11.89 2 2 2h16c1.11 0 2-.89 2-2V6c0-1.11-.89-2-2-2zm0 14H4v-6h16v6zm0-10H4V6h16v2z"/></svg>
                   Payment Modes
                 </a>
-                <a href="/religious-rites" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/religious-rites') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/religious-rites" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/religious-rites') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg>
                   Religious Rites
                 </a>
-                <a href="/document-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/document-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/document-types" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/document-types') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M14 2H6c-1.1 0-1.99.9-1.99 2L4 20c0 1.1.89 2 1.99 2H18c1.1 0 2-.9 2-2V8l-6-6zm2 16H8v-2h8v2zm0-4H8v-2h8v2zm-3-5V3.5L18.5 9H13z"/></svg>
                   Document Types
                 </a>
-                <a href="/expense-categories" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/expense-categories') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/expense-categories" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/expense-categories') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
                   Expense Categories
                 </a>
-                <a href="/roles-permissions" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/roles-permissions') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/roles-permissions" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/roles-permissions') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M12 1L3 5v6c0 5.55 3.84 10.74 9 12 5.16-1.26 9-6.45 9-12V5l-9-4zm0 10.99h7c-.53 4.12-3.28 7.79-7 8.94V12H5V6.3l7-3.11v8.8z"/></svg>
                   Roles & Permissions
                 </a>
-                <a href="/user-management" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/user-management') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/user-management" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/user-management') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
                   User Management
                 </a>
-                <a href="/system-settings" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/system-settings') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
+                <a href="/settings/system-settings" className={`flex items-center px-4 py-2 pl-11 text-sm ${isActive('/settings/system-settings') ? 'bg-yellow-500 text-slate-900' : 'hover:bg-slate-700 text-white'}`}>
                   <svg className="w-3 h-3 mr-2" fill="currentColor" viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94L14.4 2.81c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.09.63-.09.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
                   System Settings
                 </a>
