@@ -1,3 +1,6 @@
+'use client';
+
+import { useState } from 'react';
 import Sidebar from '@/components/Sidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import StatCard from '@/components/StatCard';
@@ -5,8 +8,11 @@ import QuickActions from '@/components/QuickActions';
 import RecentActivity from '@/components/RecentActivity';
 import UpcomingServices from '@/components/UpcomingServices';
 import MyTasks from '@/components/MyTasks';
+import NewCaseModal from '@/components/NewCaseModal';
 
 export default function Dashboard() {
+  const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
+
   return (
     <div className="flex min-h-screen bg-white">
       <Sidebar />
@@ -29,7 +35,10 @@ export default function Dashboard() {
                 Super Admin
               </span>
             </div>
-            <button className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2.5 rounded-lg shadow-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2 hover:scale-105 text-sm font-semibold">
+            <button
+              onClick={() => setIsNewCaseModalOpen(true)}
+              className="bg-gradient-to-r from-indigo-500 to-purple-500 text-white px-5 py-2.5 rounded-lg shadow-lg hover:from-indigo-600 hover:to-purple-600 transition-all duration-200 flex items-center gap-2 hover:scale-105 text-sm font-semibold"
+            >
               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
               </svg>
@@ -85,6 +94,15 @@ export default function Dashboard() {
         </main>
       </div>
 
+      {/* New Case Modal */}
+      <NewCaseModal
+        isOpen={isNewCaseModalOpen}
+        onClose={() => setIsNewCaseModalOpen(false)}
+        onCaseCreated={() => {
+          // Optionally refresh dashboard data here
+          setIsNewCaseModalOpen(false);
+        }}
+      />
     </div>
   );
 }

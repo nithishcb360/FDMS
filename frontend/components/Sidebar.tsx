@@ -24,8 +24,14 @@ export default function Sidebar() {
         }
         const userData = await getCurrentUser(token);
         setUser(userData);
-      } catch (error) {
-        console.error('Failed to fetch user:', error);
+      } catch (error: any) {
+        // Silently handle 401 errors (expired/invalid token)
+        if (error?.response?.status === 401) {
+          localStorage.removeItem('access_token');
+          router.push('/signin');
+        } else {
+          console.error('Failed to fetch user:', error);
+        }
       } finally {
         setLoading(false);
       }
