@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const API_URL = `${API_BASE_URL}/service-addons`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface ServiceAddonData {
   id?: number;
   // Basic Information
@@ -46,36 +51,36 @@ export const serviceAddonsApi = {
     category?: string;
     status?: string;
   }): Promise<ServiceAddonData[]> => {
-    const response = await axios.get(API_URL, { params });
+    const response = await axios.get(API_URL, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<ServiceAddonStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getCategories: async (): Promise<string[]> => {
-    const response = await axios.get(`${API_URL}/categories`);
+    const response = await axios.get(`${API_URL}/categories`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<ServiceAddonData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (addonData: Omit<ServiceAddonData, 'id' | 'created_at' | 'updated_at'>): Promise<ServiceAddonData> => {
-    const response = await axios.post(API_URL, addonData);
+    const response = await axios.post(API_URL, addonData, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, addonData: Partial<Omit<ServiceAddonData, 'id' | 'created_at' | 'updated_at'>>): Promise<ServiceAddonData> => {
-    const response = await axios.put(`${API_URL}/${id}`, addonData);
+    const response = await axios.put(`${API_URL}/${id}`, addonData, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   },
 };

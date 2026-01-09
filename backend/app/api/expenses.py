@@ -3,17 +3,25 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.expense import Expense
+from app.models.user import User
 from app.schemas.expense import ExpenseCreate, ExpenseUpdate, ExpenseResponse
 
 router = APIRouter()
 
 @router.get("/stats")
-def get_expense_stats(db: Session = Depends(get_db)):
-    total_expenses = db.query(Expense).count()
-    total_amount = db.query(func.sum(Expense.amount)).scalar() or 0.0
-    pending = db.query(Expense).filter(Expense.status == "Pending").count()
-    paid = db.query(Expense).filter(Expense.status == "Paid").count()
+def get_expense_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Expense)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Expense.user_id == current_user.id)
+
+    total_expenses = query.count()
+    total_amount = query.with_entities(func.sum(Expense.amount)).scalar() or 0.0
+    pending = query.filter(Expense.status == "Pending").count()
+    paid = query.filter(Expense.status == "Paid").count()
 
     return {
         "total_expenses": total_expenses,
@@ -27,9 +35,14 @@ def get_expenses(
     search: Optional[str] = None,
     status: Optional[str] = None,
     category: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     query = db.query(Expense)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Expense.user_id == current_user.id)
 
     if search:
         search_filter = f"%{search}%"
@@ -48,14 +61,20 @@ def get_expenses(
     return query.order_by(Expense.created_at.desc()).all()
 
 @router.get("/{expense_id}", response_model=ExpenseResponse)
-def get_expense(expense_id: int, db: Session = Depends(get_db)):
-    expense = db.query(Expense).filter(Expense.id == expense_id).first()
+def get_expense(expense_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Expense).filter(Expense.id == expense_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Expense.user_id == current_user.id)
+
+    expense = query.first()
     if not expense:
         raise HTTPException(status_code=404, detail="Expense not found")
     return expense
 
 @router.post("/", response_model=ExpenseResponse)
-def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
+def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Auto-generate expense number
     latest_expense = db.query(Expense).order_by(Expense.id.desc()).first()
     if latest_expense and latest_expense.expense_number:
@@ -70,15 +89,21 @@ def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
     expense_data = expense.model_dump()
     expense_data['expense_number'] = expense_number
 
-    db_expense = Expense(**expense_data)
+    db_expense = Expense(**expense_data, user_id=current_user.id)
     db.add(db_expense)
     db.commit()
     db.refresh(db_expense)
     return db_expense
 
 @router.put("/{expense_id}", response_model=ExpenseResponse)
-def update_expense(expense_id: int, expense: ExpenseUpdate, db: Session = Depends(get_db)):
-    db_expense = db.query(Expense).filter(Expense.id == expense_id).first()
+def update_expense(expense_id: int, expense: ExpenseUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Expense).filter(Expense.id == expense_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Expense.user_id == current_user.id)
+
+    db_expense = query.first()
     if not db_expense:
         raise HTTPException(status_code=404, detail="Expense not found")
 
@@ -91,8 +116,14 @@ def update_expense(expense_id: int, expense: ExpenseUpdate, db: Session = Depend
     return db_expense
 
 @router.delete("/{expense_id}")
-def delete_expense(expense_id: int, db: Session = Depends(get_db)):
-    db_expense = db.query(Expense).filter(Expense.id == expense_id).first()
+def delete_expense(expense_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Expense).filter(Expense.id == expense_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Expense.user_id == current_user.id)
+
+    db_expense = query.first()
     if not db_expense:
         raise HTTPException(status_code=404, detail="Expense not found")
 

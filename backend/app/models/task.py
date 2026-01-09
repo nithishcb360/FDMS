@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, Float
+from sqlalchemy import Column, Integer, String, Text, DateTime, Date, Boolean, Float, ForeignKey
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -7,6 +7,7 @@ class Task(Base):
     __tablename__ = "tasks"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Basic Information
     title = Column(String(200), nullable=False)

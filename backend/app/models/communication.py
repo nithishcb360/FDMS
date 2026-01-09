@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean
+from sqlalchemy import Column, Integer, String, DateTime, Text, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from ..core.database import Base
 
@@ -6,6 +6,7 @@ class Communication(Base):
     __tablename__ = "communications"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Communication Details
     family_id = Column(Integer, nullable=True)

@@ -4,8 +4,10 @@ from sqlalchemy import func
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.vehicle_assignment import VehicleAssignment
 from app.models.vehicle import Vehicle
+from app.models.user import User
 from app.schemas.vehicle_assignment import VehicleAssignmentCreate, VehicleAssignmentUpdate, VehicleAssignmentResponse
 
 router = APIRouter()
@@ -13,14 +15,14 @@ router = APIRouter()
 
 @router.post("/", response_model=VehicleAssignmentResponse)
 @router.post("", response_model=VehicleAssignmentResponse)
-def create_assignment(assignment: VehicleAssignmentCreate, db: Session = Depends(get_db)):
+def create_assignment(assignment: VehicleAssignmentCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Create a new vehicle assignment"""
     # Check if vehicle exists
     vehicle = db.query(Vehicle).filter(Vehicle.id == assignment.vehicle_id).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
-    db_assignment = VehicleAssignment(**assignment.model_dump())
+    db_assignment = VehicleAssignment(**assignment.model_dump(), user_id=current_user.id)
     db.add(db_assignment)
     db.commit()
     db.refresh(db_assignment)
@@ -35,10 +37,15 @@ def get_assignments(
     search: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
     assignment_type: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get all vehicle assignments with optional filters"""
     query = db.query(VehicleAssignment)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
 
     # Apply filters
     if search:
@@ -61,16 +68,22 @@ def get_assignments(
 
 
 @router.get("/stats", response_model=dict)
-def get_assignment_stats(db: Session = Depends(get_db)):
+def get_assignment_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get vehicle assignment statistics"""
-    total = db.query(VehicleAssignment).count()
-    scheduled = db.query(VehicleAssignment).filter(
+    query = db.query(VehicleAssignment)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
+
+    total = query.count()
+    scheduled = query.filter(
         VehicleAssignment.status == "Scheduled"
     ).count()
-    in_progress = db.query(VehicleAssignment).filter(
+    in_progress = query.filter(
         VehicleAssignment.status == "In Progress"
     ).count()
-    completed = db.query(VehicleAssignment).filter(
+    completed = query.filter(
         VehicleAssignment.status == "Completed"
     ).count()
 
@@ -83,25 +96,43 @@ def get_assignment_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/assignment-types", response_model=List[str])
-def get_assignment_types(db: Session = Depends(get_db)):
+def get_assignment_types(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get all unique assignment types"""
-    types = db.query(VehicleAssignment.assignment_type).distinct().filter(VehicleAssignment.assignment_type.isnot(None)).all()
+    query = db.query(VehicleAssignment.assignment_type).distinct().filter(VehicleAssignment.assignment_type.isnot(None))
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
+
+    types = query.all()
     return [t[0] for t in types if t[0]]
 
 
 @router.get("/{assignment_id}", response_model=VehicleAssignmentResponse)
-def get_assignment(assignment_id: int, db: Session = Depends(get_db)):
+def get_assignment(assignment_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get a specific assignment by ID"""
-    assignment = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id).first()
+    query = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
+
+    assignment = query.first()
     if not assignment:
         raise HTTPException(status_code=404, detail="Assignment not found")
     return assignment
 
 
 @router.put("/{assignment_id}", response_model=VehicleAssignmentResponse)
-def update_assignment(assignment_id: int, assignment_update: VehicleAssignmentUpdate, db: Session = Depends(get_db)):
+def update_assignment(assignment_id: int, assignment_update: VehicleAssignmentUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update an assignment"""
-    db_assignment = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id).first()
+    query = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
+
+    db_assignment = query.first()
     if not db_assignment:
         raise HTTPException(status_code=404, detail="Assignment not found")
 
@@ -122,9 +153,15 @@ def update_assignment(assignment_id: int, assignment_update: VehicleAssignmentUp
 
 
 @router.delete("/{assignment_id}")
-def delete_assignment(assignment_id: int, db: Session = Depends(get_db)):
+def delete_assignment(assignment_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete an assignment"""
-    db_assignment = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id).first()
+    query = db.query(VehicleAssignment).filter(VehicleAssignment.id == assignment_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VehicleAssignment.user_id == current_user.id)
+
+    db_assignment = query.first()
     if not db_assignment:
         raise HTTPException(status_code=404, detail="Assignment not found")
 

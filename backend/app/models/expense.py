@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Text, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Float, Date, Text, DateTime, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -6,6 +6,7 @@ class Expense(Base):
     __tablename__ = "expenses"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     expense_number = Column(String(100), unique=True, nullable=False)
 
     # Basic Information

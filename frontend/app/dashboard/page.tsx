@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
-import Sidebar from '@/components/Sidebar';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import StatCard from '@/components/StatCard';
 import QuickActions from '@/components/QuickActions';
@@ -9,15 +10,39 @@ import RecentActivity from '@/components/RecentActivity';
 import UpcomingServices from '@/components/UpcomingServices';
 import MyTasks from '@/components/MyTasks';
 import NewCaseModal from '@/components/NewCaseModal';
+import { getCurrentUser, UserResponse } from '@/lib/api';
 
 export default function Dashboard() {
   const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
+  const [user, setUser] = useState<UserResponse | null>(null);
+  const [loading, setLoading] = useState(true);
+  const router = useRouter();
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        const token = localStorage.getItem('access_token');
+        if (!token) {
+          router.push('/signin');
+          return;
+        }
+        const userData = await getCurrentUser(token);
+        setUser(userData);
+      } catch (error) {
+        console.error('Failed to fetch user:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchUser();
+  }, [router]);
 
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar />
+      <DynamicSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <DashboardHeader />
 
         <main className="flex-1 p-6 lg:p-8">
@@ -29,11 +54,34 @@ export default function Dashboard() {
                 <span className="bg-gradient-to-r from-indigo-500 to-purple-500 bg-clip-text text-transparent">Dashboard</span>
                 <span className="text-xl">✨</span>
               </h1>
-              <p className="text-gray-600 mt-1 text-sm">Welcome back, System Administrator!</p>
-              <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-xs font-semibold rounded-full border border-orange-200">
-                <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
-                Super Admin
-              </span>
+              {loading ? (
+                <div className="animate-pulse">
+                  <div className="h-4 w-48 bg-gray-200 rounded mt-1"></div>
+                  <div className="h-6 w-24 bg-gray-200 rounded mt-2"></div>
+                </div>
+              ) : (
+                <>
+                  <p className="text-gray-600 mt-1 text-sm">
+                    Welcome back, {user?.full_name || user?.email || 'User'}!
+                  </p>
+                  {user?.is_superuser ? (
+                    <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-gradient-to-r from-yellow-100 to-orange-100 text-orange-700 text-xs font-semibold rounded-full border border-orange-200">
+                      <span className="w-1.5 h-1.5 bg-orange-400 rounded-full"></span>
+                      Super Admin
+                    </span>
+                  ) : user?.role_display_name ? (
+                    <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-indigo-700 text-xs font-semibold rounded-full border border-indigo-200">
+                      <span className="w-1.5 h-1.5 bg-indigo-400 rounded-full"></span>
+                      {user.role_display_name}
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1.5 mt-2 px-3 py-1 bg-gradient-to-r from-gray-100 to-gray-200 text-gray-700 text-xs font-semibold rounded-full border border-gray-300">
+                      <span className="w-1.5 h-1.5 bg-gray-400 rounded-full"></span>
+                      User
+                    </span>
+                  )}
+                </>
+              )}
             </div>
             <button
               onClick={() => setIsNewCaseModalOpen(true)}

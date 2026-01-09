@@ -37,7 +37,13 @@
       "Bash(del D:FDMScreate_invoices_page.py)",
       "Bash(timeout 2 bash -c \"while taskkill //F //IM node.exe 2>/dev/null; do sleep 0.3; done\")",
       "Bash(npm run build:*)",
-      "Bash(npx tsc:*)"
+      "Bash(npx tsc:*)",
+      "Bash(\"/c/Program Files/PostgreSQL/17/bin/psql\" -U postgres -h localhost -d fdms -c \"SELECT id, email, role_id, is_superuser FROM users WHERE email = ''admin12@demo.com'';\")",
+      "Bash(\"/c/Program Files/PostgreSQL/16/bin/psql\" -U postgres -h localhost -d fdms -c \"SELECT id, email, role_id, is_superuser FROM users WHERE email = ''admin12@demo.com'';\")",
+      "Bash(while read file)",
+      "Bash(do if grep -q '<div className=\"\"\"\"flex-1 flex flex-col\"\"\"\">' \"$file\")",
+      "Bash(then sed -i 's/<div className=\"\"\"\"flex-1 flex flex-col\"\"\"\">/<div className=\"\"\"\"flex-1 flex flex-col lg:ml-64\"\"\"\">/g' \"$file\" echo \"Updated: $file\" fi done)",
+      "Bash(xargs sed:*)"
     ],
     "deny": [],
     "ask": []

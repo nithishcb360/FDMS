@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const API_URL = `${API_BASE_URL}/vehicle-assignments`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface VehicleAssignmentData {
   id?: number;
 
@@ -54,36 +59,36 @@ export const vehicleAssignmentsApi = {
     status?: string;
     assignment_type?: string;
   }): Promise<VehicleAssignmentData[]> => {
-    const response = await axios.get(API_URL, { params });
+    const response = await axios.get(API_URL, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<VehicleAssignmentStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getAssignmentTypes: async (): Promise<string[]> => {
-    const response = await axios.get(`${API_URL}/assignment-types`);
+    const response = await axios.get(`${API_URL}/assignment-types`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<VehicleAssignmentData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (assignmentData: Omit<VehicleAssignmentData, 'id' | 'created_at' | 'updated_at'>): Promise<VehicleAssignmentData> => {
-    const response = await axios.post(API_URL, assignmentData);
+    const response = await axios.post(API_URL, assignmentData, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, assignmentData: Partial<Omit<VehicleAssignmentData, 'id' | 'created_at' | 'updated_at'>>): Promise<VehicleAssignmentData> => {
-    const response = await axios.put(`${API_URL}/${id}`, assignmentData);
+    const response = await axios.put(`${API_URL}/${id}`, assignmentData, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   },
 };

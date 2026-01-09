@@ -45,7 +45,11 @@ export interface UserResponse {
   full_name?: string;
   is_active: boolean;
   is_superuser: boolean;
+  role_id?: number;
+  role_name?: string;
+  role_display_name?: string;
   created_at: string;
+  updated_at?: string;
 }
 
 export const signUp = async (data: SignUpData): Promise<UserResponse> => {

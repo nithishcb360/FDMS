@@ -2,6 +2,11 @@ import axios from 'axios';
 
 const API_URL = 'http://localhost:8001/api/families';
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface FamilyData {
   id?: number;
   family_id: string;
@@ -36,31 +41,31 @@ export const familiesApi = {
     search?: string;
     status?: string;
   }): Promise<FamilyData[]> => {
-    const response = await axios.get(`${API_URL}/`, { params });
+    const response = await axios.get(`${API_URL}/`, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<FamilyStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<FamilyData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (data: Omit<FamilyData, 'id' | 'family_id' | 'total_cases' | 'lifetime_value' | 'status' | 'created_at' | 'updated_at'>): Promise<FamilyData> => {
-    const response = await axios.post(`${API_URL}/`, data);
+    const response = await axios.post(`${API_URL}/`, data, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, data: Partial<FamilyData>): Promise<FamilyData> => {
-    const response = await axios.put(`${API_URL}/${id}`, data);
+    const response = await axios.put(`${API_URL}/${id}`, data, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   }
 };

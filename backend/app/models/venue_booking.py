@@ -8,6 +8,7 @@ class VenueBooking(Base):
     __tablename__ = "venue_bookings"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
     venue = Column(String(200), nullable=False)
     booking_date = Column(DateTime(timezone=True), nullable=False)

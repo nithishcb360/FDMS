@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import { fuelLogsApi, FuelLogData, FuelLogStats } from '@/lib/api/fuel-logs';
 import { vehiclesApi, VehicleData } from '@/lib/api/vehicles';
 import NewFuelLogModal from '@/components/NewFuelLogModal';
@@ -102,7 +102,7 @@ export default function FuelLogsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1">
         {/* Header */}

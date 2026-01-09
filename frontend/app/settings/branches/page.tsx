@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { BranchData, branchesApi } from '@/lib/api/branches';
 import AddBranchModal from '@/components/AddBranchModal';
@@ -112,7 +112,7 @@ export default function BranchesPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />

@@ -3,13 +3,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from ..models.transaction import Transaction
+from ..models.user import User
 from ..schemas.transaction import TransactionCreate, TransactionUpdate, TransactionResponse
 from ..core.database import get_db
+from ..core.security import get_current_user
 
 router = APIRouter()
 
 @router.post("/", response_model=TransactionResponse)
-def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db)):
+def create_transaction(transaction: TransactionCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Auto-generate transaction ID
     latest_transaction = db.query(Transaction).order_by(Transaction.id.desc()).first()
     if latest_transaction and latest_transaction.transaction_id:
@@ -24,7 +26,7 @@ def create_transaction(transaction: TransactionCreate, db: Session = Depends(get
     transaction_data = transaction.model_dump()
     transaction_data['transaction_id'] = transaction_id
 
-    db_transaction = Transaction(**transaction_data)
+    db_transaction = Transaction(**transaction_data, user_id=current_user.id)
     db.add(db_transaction)
     db.commit()
     db.refresh(db_transaction)
@@ -37,9 +39,14 @@ def get_transactions(
     search: Optional[str] = None,
     transaction_type: Optional[str] = None,
     category: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     query = db.query(Transaction)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Transaction.user_id == current_user.id)
 
     if search:
         query = query.filter(
@@ -58,16 +65,22 @@ def get_transactions(
     return transactions
 
 @router.get("/stats")
-def get_transaction_stats(db: Session = Depends(get_db)):
-    total_transactions = db.query(func.count(Transaction.id)).scalar()
+def get_transaction_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Transaction)
 
-    income = db.query(func.sum(Transaction.amount)).filter(
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Transaction.user_id == current_user.id)
+
+    total_transactions = query.count()
+
+    income = query.filter(
         Transaction.transaction_type == "Income"
-    ).scalar() or 0.0
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0.0
 
-    expenses = db.query(func.sum(Transaction.amount)).filter(
+    expenses = query.filter(
         Transaction.transaction_type == "Expense"
-    ).scalar() or 0.0
+    ).with_entities(func.sum(Transaction.amount)).scalar() or 0.0
 
     net = income - expenses
 
@@ -79,8 +92,14 @@ def get_transaction_stats(db: Session = Depends(get_db)):
     }
 
 @router.get("/{transaction_id}", response_model=TransactionResponse)
-def get_transaction(transaction_id: int, db: Session = Depends(get_db)):
-    transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+def get_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Transaction).filter(Transaction.id == transaction_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Transaction.user_id == current_user.id)
+
+    transaction = query.first()
     if not transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
     return transaction
@@ -89,9 +108,16 @@ def get_transaction(transaction_id: int, db: Session = Depends(get_db)):
 def update_transaction(
     transaction_id: int,
     transaction: TransactionUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    db_transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+    query = db.query(Transaction).filter(Transaction.id == transaction_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Transaction.user_id == current_user.id)
+
+    db_transaction = query.first()
     if not db_transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
 
@@ -104,8 +130,14 @@ def update_transaction(
     return db_transaction
 
 @router.delete("/{transaction_id}")
-def delete_transaction(transaction_id: int, db: Session = Depends(get_db)):
-    db_transaction = db.query(Transaction).filter(Transaction.id == transaction_id).first()
+def delete_transaction(transaction_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Transaction).filter(Transaction.id == transaction_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Transaction.user_id == current_user.id)
+
+    db_transaction = query.first()
     if not db_transaction:
         raise HTTPException(status_code=404, detail="Transaction not found")
 

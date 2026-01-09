@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { PaymentModeData, paymentModesApi } from '@/lib/api/payment-modes';
 import AddPaymentModeModal from '@/components/AddPaymentModeModal';
@@ -132,7 +132,7 @@ export default function PaymentModesPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />

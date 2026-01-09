@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, Text, DateTime
+from sqlalchemy import Column, Integer, String, Float, Date, Text, DateTime, ForeignKey
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -6,6 +6,7 @@ class Invoice(Base):
     __tablename__ = "invoices"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     invoice_number = Column(String(100), unique=True, nullable=False)
 
     # Client Information

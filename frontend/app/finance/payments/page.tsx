@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { paymentsApi, PaymentData, PaymentStats } from '@/lib/api/payments';
 import AddPaymentModal from '@/components/AddPaymentModal';
@@ -99,8 +99,8 @@ export default function PaymentsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
-      <div className="flex-1 flex flex-col">
+      <DynamicSidebar />
+      <div className="flex-1 flex flex-col lg:ml-64">
         <DashboardHeader />
         <main className="flex-1 p-6">
           <div className="mb-6 flex items-center justify-between">

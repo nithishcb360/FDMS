@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const API_URL = `${API_BASE_URL}/vehicles`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface VehicleData {
   id?: number;
   // Identification
@@ -72,41 +77,41 @@ export const vehiclesApi = {
     branch?: string;
     ownership?: string;
   }): Promise<VehicleData[]> => {
-    const response = await axios.get(API_URL, { params });
+    const response = await axios.get(API_URL, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<VehicleStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getVehicleTypes: async (): Promise<string[]> => {
-    const response = await axios.get(`${API_URL}/vehicle-types`);
+    const response = await axios.get(`${API_URL}/vehicle-types`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getBranches: async (): Promise<string[]> => {
-    const response = await axios.get(`${API_URL}/branches`);
+    const response = await axios.get(`${API_URL}/branches`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<VehicleData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (vehicleData: Omit<VehicleData, 'id' | 'created_at' | 'updated_at'>): Promise<VehicleData> => {
-    const response = await axios.post(API_URL, vehicleData);
+    const response = await axios.post(API_URL, vehicleData, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, vehicleData: Partial<Omit<VehicleData, 'id' | 'created_at' | 'updated_at'>>): Promise<VehicleData> => {
-    const response = await axios.put(`${API_URL}/${id}`, vehicleData);
+    const response = await axios.put(`${API_URL}/${id}`, vehicleData, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   },
 };

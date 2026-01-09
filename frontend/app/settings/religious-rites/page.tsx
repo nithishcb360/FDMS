@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { ReligiousRiteData, religiousRitesApi } from '@/lib/api/religious-rites';
 import AddReligiousRiteModal from '@/components/AddReligiousRiteModal';
@@ -121,7 +121,7 @@ export default function ReligiousRitesPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />

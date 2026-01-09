@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { stockMovementsApi } from '@/lib/api/stock-movements';
 import { productsApi, ProductData } from '@/lib/api/products';
@@ -88,7 +88,7 @@ export default function RecordStockMovementPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />

@@ -4,14 +4,16 @@ from sqlalchemy import func
 from typing import List, Optional
 
 from ..core.database import get_db
+from ..core.security import get_current_user
 from ..models.preneed import Preneed
+from ..models.user import User
 from ..schemas.preneed import PreneedCreate, PreneedUpdate, PreneedResponse
 
 router = APIRouter()
 
 @router.post("/", response_model=PreneedResponse)
-def create_preneed(preneed: PreneedCreate, db: Session = Depends(get_db)):
-    db_preneed = Preneed(**preneed.model_dump())
+def create_preneed(preneed: PreneedCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_preneed = Preneed(**preneed.model_dump(), user_id=current_user.id)
     db.add(db_preneed)
     db.commit()
     db.refresh(db_preneed)
@@ -24,9 +26,14 @@ def get_preneeds(
     status: Optional[str] = None,
     payment_plan: Optional[str] = None,
     search: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     query = db.query(Preneed)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Preneed.user_id == current_user.id)
 
     if status:
         query = query.filter(Preneed.status == status)
@@ -44,13 +51,19 @@ def get_preneeds(
     return preneeds
 
 @router.get("/stats")
-def get_preneed_stats(db: Session = Depends(get_db)):
-    total = db.query(func.count(Preneed.id)).scalar()
-    active = db.query(func.count(Preneed.id)).filter(
+def get_preneed_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Preneed)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Preneed.user_id == current_user.id)
+
+    total = query.count()
+    active = query.filter(
         Preneed.status == "Active"
-    ).scalar()
-    total_value = db.query(func.sum(Preneed.estimated_cost)).scalar()
-    total_paid = db.query(func.sum(Preneed.amount_paid)).scalar()
+    ).count()
+    total_value = query.with_entities(func.sum(Preneed.estimated_cost)).scalar()
+    total_paid = query.with_entities(func.sum(Preneed.amount_paid)).scalar()
 
     return {
         "total_plans": total or 0,
@@ -60,15 +73,27 @@ def get_preneed_stats(db: Session = Depends(get_db)):
     }
 
 @router.get("/{preneed_id}", response_model=PreneedResponse)
-def get_preneed(preneed_id: int, db: Session = Depends(get_db)):
-    preneed = db.query(Preneed).filter(Preneed.id == preneed_id).first()
+def get_preneed(preneed_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Preneed).filter(Preneed.id == preneed_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Preneed.user_id == current_user.id)
+
+    preneed = query.first()
     if not preneed:
         raise HTTPException(status_code=404, detail="Pre-need plan not found")
     return preneed
 
 @router.put("/{preneed_id}", response_model=PreneedResponse)
-def update_preneed(preneed_id: int, preneed: PreneedUpdate, db: Session = Depends(get_db)):
-    db_preneed = db.query(Preneed).filter(Preneed.id == preneed_id).first()
+def update_preneed(preneed_id: int, preneed: PreneedUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Preneed).filter(Preneed.id == preneed_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Preneed.user_id == current_user.id)
+
+    db_preneed = query.first()
     if not db_preneed:
         raise HTTPException(status_code=404, detail="Pre-need plan not found")
 
@@ -81,8 +106,14 @@ def update_preneed(preneed_id: int, preneed: PreneedUpdate, db: Session = Depend
     return db_preneed
 
 @router.delete("/{preneed_id}")
-def delete_preneed(preneed_id: int, db: Session = Depends(get_db)):
-    db_preneed = db.query(Preneed).filter(Preneed.id == preneed_id).first()
+def delete_preneed(preneed_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Preneed).filter(Preneed.id == preneed_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Preneed.user_id == current_user.id)
+
+    db_preneed = query.first()
     if not db_preneed:
         raise HTTPException(status_code=404, detail="Pre-need plan not found")
 

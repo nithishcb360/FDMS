@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import { vehicleAssignmentsApi, VehicleAssignmentData, VehicleAssignmentStats } from '@/lib/api/vehicle-assignments';
 import { vehiclesApi, VehicleData } from '@/lib/api/vehicles';
 import NewVehicleAssignmentModal from '@/components/NewVehicleAssignmentModal';
@@ -127,7 +127,7 @@ export default function VehicleAssignmentsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1">
         {/* Header */}

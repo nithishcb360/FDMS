@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import DashboardHeader from '@/components/DashboardHeader';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import { getCurrentUser, UserResponse } from '@/lib/api';
 
 export default function ProfilePage() {
@@ -58,7 +58,7 @@ export default function ProfilePage() {
   if (loading) {
     return (
       <div className="flex h-screen bg-gray-50">
-        <Sidebar />
+        <DynamicSidebar />
         <div className="flex-1 flex flex-col overflow-hidden">
           <DashboardHeader />
           <main className="flex-1 overflow-y-auto p-8">
@@ -77,7 +77,7 @@ export default function ProfilePage() {
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />
         <main className="flex-1 overflow-y-auto p-8">

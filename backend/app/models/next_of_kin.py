@@ -7,6 +7,7 @@ class NextOfKin(Base):
     __tablename__ = "next_of_kin"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     case_number = Column(String(50), ForeignKey("cases.case_number"), nullable=False)
 
     # Personal Information

@@ -1,0 +1,4 @@
+This file contains the sections that need to be added to DynamicSidebar.tsx
+Insert these BEFORE the "Show message when no tabs" comment
+
+All sections need isSectionAllowed() and isTabAllowed() wrappers

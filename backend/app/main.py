@@ -32,6 +32,8 @@ from .api import payment_modes as payment_modes_api
 from .api import religious_rites as religious_rites_api
 from .api import document_types as document_types_api
 from .api import auth as auth_api
+from .api import tab_settings as tab_settings_api
+from .api import roles as roles_api
 
 # Import models to ensure they are registered with Base
 from .models import case as case_model
@@ -65,6 +67,8 @@ from .models import payment_mode as payment_mode_model
 from .models import religious_rite as religious_rite_model
 from .models import document_type as document_type_model
 from .models import user as user_model
+from .models import tab_setting as tab_setting_model
+from .models import role as role_model
 
 # Create database tables
 Base.metadata.create_all(bind=engine)
@@ -122,6 +126,8 @@ app.include_router(payment_modes_api.router, prefix="/api/payment-modes", tags=[
 app.include_router(religious_rites_api.router, prefix="/api/religious-rites", tags=["religious-rites"])
 app.include_router(document_types_api.router, prefix="/api/document-types", tags=["document-types"])
 app.include_router(auth_api.router, prefix="/api/auth", tags=["authentication"])
+app.include_router(tab_settings_api.router, prefix="/api/tab-settings", tags=["tab-settings"])
+app.include_router(roles_api.router, prefix="/api/roles", tags=["roles"])
 
 
 @app.get("/")

@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const API_URL = `${API_BASE_URL}/next-of-kin`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface NextOfKinData {
   id?: number;
   case_number: string;
@@ -25,31 +30,31 @@ export interface NextOfKinData {
 
 export const nextOfKinApi = {
   getAll: async (): Promise<NextOfKinData[]> => {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<NextOfKinData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getByCase: async (caseNumber: string): Promise<NextOfKinData[]> => {
-    const response = await axios.get(`${API_URL}/by-case/${caseNumber}`);
+    const response = await axios.get(`${API_URL}/by-case/${caseNumber}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (data: NextOfKinData): Promise<NextOfKinData> => {
-    const response = await axios.post(API_URL, data);
+    const response = await axios.post(API_URL, data, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, data: Partial<NextOfKinData>): Promise<NextOfKinData> => {
-    const response = await axios.put(`${API_URL}/${id}`, data);
+    const response = await axios.put(`${API_URL}/${id}`, data, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   },
 };

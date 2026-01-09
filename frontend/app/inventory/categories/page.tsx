@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import { CategoryData, categoriesApi } from '@/lib/api/categories';
 import AddCategoryModal from '@/components/AddCategoryModal';
@@ -128,7 +128,7 @@ export default function CategoriesPage() {
 
   return (
     <div className="flex h-screen bg-gray-100">
-      <Sidebar />
+      <DynamicSidebar />
 
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />

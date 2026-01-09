@@ -2,6 +2,11 @@ import axios from 'axios';
 
 const API_URL = `${process.env.NEXT_PUBLIC_API_URL}/time-logs`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface TimeLogData {
   id?: number;
   staff_member_id: number;
@@ -39,31 +44,31 @@ export const timeLogsApi = {
     log_type?: string;
     staff_member?: string;
   }): Promise<TimeLogData[]> => {
-    const response = await axios.get(`${API_URL}/`, { params });
+    const response = await axios.get(`${API_URL}/`, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<TimeLogStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<TimeLogData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (timeLog: Omit<TimeLogData, 'id' | 'created_at' | 'updated_at'>): Promise<TimeLogData> => {
-    const response = await axios.post(`${API_URL}/`, timeLog);
+    const response = await axios.post(`${API_URL}/`, timeLog, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, timeLog: Partial<TimeLogData>): Promise<TimeLogData> => {
-    const response = await axios.put(`${API_URL}/${id}`, timeLog);
+    const response = await axios.put(`${API_URL}/${id}`, timeLog, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   }
 };

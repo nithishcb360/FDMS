@@ -2,14 +2,14 @@
 
 import { useState } from 'react';
 import DashboardHeader from '@/components/DashboardHeader';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 
 export default function SettingsPage() {
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
   return (
     <div className="flex h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
       <div className="flex-1 flex flex-col overflow-hidden">
         <DashboardHeader />
         <main className="flex-1 overflow-y-auto p-8">

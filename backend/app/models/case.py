@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, DateTime
+from sqlalchemy import Column, Integer, String, Text, Date, DateTime, ForeignKey
 from sqlalchemy.orm import relationship
 from sqlalchemy.sql import func
 from app.core.database import Base
@@ -9,6 +9,7 @@ class Case(Base):
 
     id = Column(Integer, primary_key=True, index=True)
     case_number = Column(String(50), unique=True, index=True, nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Deceased Information
     first_name = Column(String(100), nullable=False)
