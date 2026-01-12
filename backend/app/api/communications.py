@@ -3,14 +3,16 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from ..models.communication import Communication
+from ..models.user import User
 from ..schemas.communication import CommunicationCreate, CommunicationUpdate, CommunicationResponse
 from ..core.database import get_db
+from ..core.security import get_current_user
 
 router = APIRouter()
 
 @router.post("/", response_model=CommunicationResponse)
-def create_communication(communication: CommunicationCreate, db: Session = Depends(get_db)):
-    db_communication = Communication(**communication.model_dump())
+def create_communication(communication: CommunicationCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    db_communication = Communication(**communication.model_dump(), user_id=current_user.id)
     db.add(db_communication)
     db.commit()
     db.refresh(db_communication)
@@ -23,9 +25,14 @@ def get_communications(
     search: Optional[str] = None,
     type: Optional[str] = None,
     status: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     query = db.query(Communication)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Communication.user_id == current_user.id)
 
     if search:
         query = query.filter(
@@ -44,20 +51,26 @@ def get_communications(
     return communications
 
 @router.get("/stats")
-def get_communication_stats(db: Session = Depends(get_db)):
-    total = db.query(func.count(Communication.id)).scalar()
+def get_communication_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Communication)
 
-    sent = db.query(func.count(Communication.id)).filter(
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Communication.user_id == current_user.id)
+
+    total = query.count()
+
+    sent = query.filter(
         Communication.status == "Sent"
-    ).scalar()
+    ).count()
 
-    delivered = db.query(func.count(Communication.id)).filter(
+    delivered = query.filter(
         Communication.status == "Delivered"
-    ).scalar()
+    ).count()
 
-    failed = db.query(func.count(Communication.id)).filter(
+    failed = query.filter(
         Communication.status == "Failed"
-    ).scalar()
+    ).count()
 
     return {
         "total": total,
@@ -67,8 +80,14 @@ def get_communication_stats(db: Session = Depends(get_db)):
     }
 
 @router.get("/{communication_id}", response_model=CommunicationResponse)
-def get_communication(communication_id: int, db: Session = Depends(get_db)):
-    communication = db.query(Communication).filter(Communication.id == communication_id).first()
+def get_communication(communication_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Communication).filter(Communication.id == communication_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Communication.user_id == current_user.id)
+
+    communication = query.first()
     if not communication:
         raise HTTPException(status_code=404, detail="Communication not found")
     return communication
@@ -77,9 +96,16 @@ def get_communication(communication_id: int, db: Session = Depends(get_db)):
 def update_communication(
     communication_id: int,
     communication: CommunicationUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    db_communication = db.query(Communication).filter(Communication.id == communication_id).first()
+    query = db.query(Communication).filter(Communication.id == communication_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Communication.user_id == current_user.id)
+
+    db_communication = query.first()
     if not db_communication:
         raise HTTPException(status_code=404, detail="Communication not found")
 
@@ -92,8 +118,14 @@ def update_communication(
     return db_communication
 
 @router.delete("/{communication_id}")
-def delete_communication(communication_id: int, db: Session = Depends(get_db)):
-    db_communication = db.query(Communication).filter(Communication.id == communication_id).first()
+def delete_communication(communication_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Communication).filter(Communication.id == communication_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Communication.user_id == current_user.id)
+
+    db_communication = query.first()
     if not db_communication:
         raise HTTPException(status_code=404, detail="Communication not found")
 

@@ -1,5 +1,9 @@
 'use client';
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import NewCaseModal from './NewCaseModal';
+
 const actions = [
   {
     name: 'New Case',
@@ -11,7 +15,7 @@ const actions = [
     color: 'text-blue-700',
     bgColor: 'bg-gradient-to-r from-blue-50 to-blue-100',
     hoverColor: 'hover:from-blue-100 hover:to-blue-200',
-    href: '/cases/new',
+    action: 'openModal',
   },
   {
     name: 'All Cases',
@@ -35,7 +39,7 @@ const actions = [
     color: 'text-green-700',
     bgColor: 'bg-gradient-to-r from-green-50 to-green-100',
     hoverColor: 'hover:from-green-100 hover:to-green-200',
-    href: '/schedule',
+    href: '/services/schedules',
   },
   {
     name: 'Staff Management',
@@ -47,36 +51,58 @@ const actions = [
     color: 'text-orange-700',
     bgColor: 'bg-gradient-to-r from-orange-50 to-orange-100',
     hoverColor: 'hover:from-orange-100 hover:to-orange-200',
-    href: '/staff',
+    href: '/staff/members',
   },
 ];
 
 export default function QuickActions() {
+  const [isNewCaseModalOpen, setIsNewCaseModalOpen] = useState(false);
+  const router = useRouter();
+
+  const handleActionClick = (action: typeof actions[0]) => {
+    if (action.action === 'openModal') {
+      setIsNewCaseModalOpen(true);
+    } else if (action.href) {
+      router.push(action.href);
+    }
+  };
+
   return (
-    <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-md overflow-hidden border border-gray-200/50">
-      <div className="bg-gradient-to-r from-indigo-100 to-purple-100 px-5 py-3 flex items-center gap-2 border-b border-indigo-200/50">
-        <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-sm">
-          <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
-          </svg>
-        </div>
-        <h2 className="text-sm font-bold text-gray-800">Quick Actions</h2>
-      </div>
-      <div className="p-3 space-y-2">
-        {actions.map((action, index) => (
-          <a
-            key={index}
-            href={action.href}
-            className={`flex items-center gap-3 px-4 py-3 rounded-xl ${action.bgColor} ${action.color} ${action.hoverColor} transition-all duration-200 border border-gray-100 shadow-sm hover:shadow-md group`}
-          >
-            <span className="flex-shrink-0 group-hover:scale-110 transition-transform">{action.icon}</span>
-            <span className="font-semibold text-sm">{action.name}</span>
-            <svg className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+    <>
+      <div className="bg-white/80 backdrop-blur-sm rounded-2xl shadow-md overflow-hidden border border-gray-200/50">
+        <div className="bg-gradient-to-r from-indigo-100 to-purple-100 px-5 py-3 flex items-center gap-2 border-b border-indigo-200/50">
+          <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-500 rounded-lg flex items-center justify-center shadow-sm">
+            <svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
             </svg>
-          </a>
-        ))}
+          </div>
+          <h2 className="text-sm font-bold text-gray-800">Quick Actions</h2>
+        </div>
+        <div className="p-3 space-y-2">
+          {actions.map((action, index) => (
+            <button
+              key={index}
+              onClick={() => handleActionClick(action)}
+              className={`w-full flex items-center gap-3 px-4 py-3 rounded-xl ${action.bgColor} ${action.color} ${action.hoverColor} transition-all duration-200 border border-gray-100 shadow-sm hover:shadow-md group`}
+            >
+              <span className="flex-shrink-0 group-hover:scale-110 transition-transform">{action.icon}</span>
+              <span className="font-semibold text-sm">{action.name}</span>
+              <svg className="w-4 h-4 ml-auto opacity-0 group-hover:opacity-100 transition-opacity" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+              </svg>
+            </button>
+          ))}
+        </div>
       </div>
-    </div>
+
+      {/* New Case Modal */}
+      <NewCaseModal
+        isOpen={isNewCaseModalOpen}
+        onClose={() => setIsNewCaseModalOpen(false)}
+        onCaseCreated={() => {
+          setIsNewCaseModalOpen(false);
+        }}
+      />
+    </>
   );
 }

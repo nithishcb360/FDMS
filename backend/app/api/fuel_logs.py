@@ -5,8 +5,10 @@ from typing import List, Optional
 from decimal import Decimal
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.fuel_log import FuelLog
 from app.models.vehicle import Vehicle
+from app.models.user import User
 from app.schemas.fuel_log import FuelLogCreate, FuelLogUpdate, FuelLogResponse
 
 router = APIRouter()
@@ -14,14 +16,14 @@ router = APIRouter()
 
 @router.post("/", response_model=FuelLogResponse)
 @router.post("", response_model=FuelLogResponse)
-def create_fuel_log(fuel_log: FuelLogCreate, db: Session = Depends(get_db)):
+def create_fuel_log(fuel_log: FuelLogCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Create a new fuel log"""
     # Verify vehicle exists
     vehicle = db.query(Vehicle).filter(Vehicle.id == fuel_log.vehicle_id).first()
     if not vehicle:
         raise HTTPException(status_code=404, detail="Vehicle not found")
 
-    db_fuel_log = FuelLog(**fuel_log.model_dump())
+    db_fuel_log = FuelLog(**fuel_log.model_dump(), user_id=current_user.id)
     db.add(db_fuel_log)
     db.commit()
     db.refresh(db_fuel_log)
@@ -36,10 +38,15 @@ def get_fuel_logs(
     search: Optional[str] = Query(None),
     fuel_type: Optional[str] = Query(None),
     vehicle_id: Optional[int] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get all fuel logs with optional filters"""
     query = db.query(FuelLog)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
 
     # Apply filters
     if search:
@@ -48,8 +55,7 @@ def get_fuel_logs(
             (Vehicle.make.ilike(f"%{search}%")) |
             (Vehicle.model.ilike(f"%{search}%")) |
             (Vehicle.license_plate.ilike(f"%{search}%")) |
-            (FuelLog.station.ilike(f"%{search}%")) |
-            (func.cast(FuelLog.id, String).ilike(f"%{search}%"))
+            (FuelLog.station.ilike(f"%{search}%"))
         )
 
     if fuel_type and fuel_type != "All Types":
@@ -63,15 +69,21 @@ def get_fuel_logs(
 
 
 @router.get("/stats", response_model=dict)
-def get_fuel_log_stats(db: Session = Depends(get_db)):
+def get_fuel_log_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get fuel log statistics"""
-    total_logs = db.query(FuelLog).count()
+    query = db.query(FuelLog)
 
-    total_fuel = db.query(func.sum(FuelLog.quantity)).scalar() or Decimal(0)
-    total_cost = db.query(func.sum(FuelLog.cost)).scalar() or Decimal(0)
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
+
+    total_logs = query.count()
+
+    total_fuel = query.with_entities(func.sum(FuelLog.quantity)).scalar() or Decimal(0)
+    total_cost = query.with_entities(func.sum(FuelLog.cost)).scalar() or Decimal(0)
 
     # Calculate average MPG (only from logs with MPG data)
-    avg_mpg = db.query(func.avg(FuelLog.mpg)).filter(FuelLog.mpg.isnot(None)).scalar() or Decimal(0)
+    avg_mpg = query.filter(FuelLog.mpg.isnot(None)).with_entities(func.avg(FuelLog.mpg)).scalar() or Decimal(0)
 
     return {
         "total_logs": total_logs,
@@ -82,25 +94,43 @@ def get_fuel_log_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/fuel-types", response_model=List[str])
-def get_fuel_types(db: Session = Depends(get_db)):
+def get_fuel_types(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get all unique fuel types from logs"""
-    types = db.query(FuelLog.fuel_type).distinct().filter(FuelLog.fuel_type.isnot(None)).all()
+    query = db.query(FuelLog.fuel_type).distinct().filter(FuelLog.fuel_type.isnot(None))
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
+
+    types = query.all()
     return [t[0] for t in types if t[0]]
 
 
 @router.get("/{fuel_log_id}", response_model=FuelLogResponse)
-def get_fuel_log(fuel_log_id: int, db: Session = Depends(get_db)):
+def get_fuel_log(fuel_log_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get a specific fuel log by ID"""
-    fuel_log = db.query(FuelLog).filter(FuelLog.id == fuel_log_id).first()
+    query = db.query(FuelLog).filter(FuelLog.id == fuel_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
+
+    fuel_log = query.first()
     if not fuel_log:
         raise HTTPException(status_code=404, detail="Fuel log not found")
     return fuel_log
 
 
 @router.put("/{fuel_log_id}", response_model=FuelLogResponse)
-def update_fuel_log(fuel_log_id: int, fuel_log_update: FuelLogUpdate, db: Session = Depends(get_db)):
+def update_fuel_log(fuel_log_id: int, fuel_log_update: FuelLogUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update a fuel log"""
-    db_fuel_log = db.query(FuelLog).filter(FuelLog.id == fuel_log_id).first()
+    query = db.query(FuelLog).filter(FuelLog.id == fuel_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
+
+    db_fuel_log = query.first()
     if not db_fuel_log:
         raise HTTPException(status_code=404, detail="Fuel log not found")
 
@@ -120,9 +150,15 @@ def update_fuel_log(fuel_log_id: int, fuel_log_update: FuelLogUpdate, db: Sessio
 
 
 @router.delete("/{fuel_log_id}")
-def delete_fuel_log(fuel_log_id: int, db: Session = Depends(get_db)):
+def delete_fuel_log(fuel_log_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete a fuel log"""
-    db_fuel_log = db.query(FuelLog).filter(FuelLog.id == fuel_log_id).first()
+    query = db.query(FuelLog).filter(FuelLog.id == fuel_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(FuelLog.user_id == current_user.id)
+
+    db_fuel_log = query.first()
     if not db_fuel_log:
         raise HTTPException(status_code=404, detail="Fuel log not found")
 

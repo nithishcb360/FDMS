@@ -8,6 +8,7 @@ class FuelLog(Base):
     __tablename__ = "fuel_logs"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # References
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)

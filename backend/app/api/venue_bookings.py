@@ -5,8 +5,10 @@ from typing import List, Optional
 from decimal import Decimal
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.venue_booking import VenueBooking
 from app.models.case import Case
+from app.models.user import User
 from app.schemas.venue_booking import VenueBookingCreate, VenueBookingUpdate, VenueBookingResponse
 
 router = APIRouter()
@@ -14,14 +16,14 @@ router = APIRouter()
 
 @router.post("/", response_model=VenueBookingResponse)
 @router.post("", response_model=VenueBookingResponse)
-def create_venue_booking(booking: VenueBookingCreate, db: Session = Depends(get_db)):
+def create_venue_booking(booking: VenueBookingCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Create a new venue booking"""
     # Verify case exists
     case = db.query(Case).filter(Case.id == booking.case_id).first()
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
 
-    db_booking = VenueBooking(**booking.model_dump())
+    db_booking = VenueBooking(**booking.model_dump(), user_id=current_user.id)
     db.add(db_booking)
     db.commit()
     db.refresh(db_booking)
@@ -36,10 +38,15 @@ def get_venue_bookings(
     search: Optional[str] = Query(None),
     venue: Optional[str] = Query(None),
     status: Optional[str] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get all venue bookings with optional filters"""
     query = db.query(VenueBooking).options(joinedload(VenueBooking.case))
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(VenueBooking.user_id == current_user.id)
 
     # Apply filters
     if search:
@@ -85,14 +92,20 @@ def get_venue_bookings(
 
 
 @router.get("/stats", response_model=dict)
-def get_venue_booking_stats(db: Session = Depends(get_db)):
+def get_venue_booking_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get venue booking statistics"""
-    total = db.query(VenueBooking).count()
-    confirmed = db.query(VenueBooking).filter(VenueBooking.status == "Confirmed").count()
-    tentative = db.query(VenueBooking).filter(VenueBooking.status == "Tentative").count()
+    query = db.query(VenueBooking)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(VenueBooking.user_id == current_user.id)
+
+    total = query.count()
+    confirmed = query.filter(VenueBooking.status == "Confirmed").count()
+    tentative = query.filter(VenueBooking.status == "Tentative").count()
 
     # Calculate total revenue
-    revenue_result = db.query(func.sum(VenueBooking.cost)).scalar()
+    revenue_result = query.with_entities(func.sum(VenueBooking.cost)).scalar()
     total_revenue = float(revenue_result) if revenue_result else 0.00
 
     return {
@@ -104,18 +117,30 @@ def get_venue_booking_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/{booking_id}", response_model=VenueBookingResponse)
-def get_venue_booking(booking_id: int, db: Session = Depends(get_db)):
+def get_venue_booking(booking_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get a specific venue booking by ID"""
-    booking = db.query(VenueBooking).filter(VenueBooking.id == booking_id).first()
+    query = db.query(VenueBooking).filter(VenueBooking.id == booking_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VenueBooking.user_id == current_user.id)
+
+    booking = query.first()
     if not booking:
         raise HTTPException(status_code=404, detail="Venue booking not found")
     return booking
 
 
 @router.put("/{booking_id}", response_model=VenueBookingResponse)
-def update_venue_booking(booking_id: int, booking_update: VenueBookingUpdate, db: Session = Depends(get_db)):
+def update_venue_booking(booking_id: int, booking_update: VenueBookingUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update a venue booking"""
-    db_booking = db.query(VenueBooking).filter(VenueBooking.id == booking_id).first()
+    query = db.query(VenueBooking).filter(VenueBooking.id == booking_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VenueBooking.user_id == current_user.id)
+
+    db_booking = query.first()
     if not db_booking:
         raise HTTPException(status_code=404, detail="Venue booking not found")
 
@@ -135,9 +160,15 @@ def update_venue_booking(booking_id: int, booking_update: VenueBookingUpdate, db
 
 
 @router.delete("/{booking_id}")
-def delete_venue_booking(booking_id: int, db: Session = Depends(get_db)):
+def delete_venue_booking(booking_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete a venue booking"""
-    db_booking = db.query(VenueBooking).filter(VenueBooking.id == booking_id).first()
+    query = db.query(VenueBooking).filter(VenueBooking.id == booking_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(VenueBooking.user_id == current_user.id)
+
+    db_booking = query.first()
     if not db_booking:
         raise HTTPException(status_code=404, detail="Venue booking not found")
 

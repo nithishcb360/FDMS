@@ -8,6 +8,7 @@ class Arrangement(Base):
     __tablename__ = "arrangements"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     case_id = Column(Integer, ForeignKey("cases.id"), nullable=False)
 
     # Basic Information

@@ -3,8 +3,10 @@ from sqlalchemy.orm import Session, joinedload
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.arrangement import Arrangement
 from app.models.case import Case
+from app.models.user import User
 from app.schemas.arrangement import ArrangementCreate, ArrangementUpdate, ArrangementResponse
 
 router = APIRouter()
@@ -12,14 +14,18 @@ router = APIRouter()
 
 @router.post("/", response_model=ArrangementResponse)
 @router.post("", response_model=ArrangementResponse)
-def create_arrangement(arrangement: ArrangementCreate, db: Session = Depends(get_db)):
+def create_arrangement(
+    arrangement: ArrangementCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Create a new arrangement"""
     # Verify case exists
     case = db.query(Case).filter(Case.id == arrangement.case_id).first()
     if not case:
         raise HTTPException(status_code=404, detail="Case not found")
 
-    db_arrangement = Arrangement(**arrangement.model_dump())
+    db_arrangement = Arrangement(**arrangement.model_dump(), user_id=current_user.id)
     db.add(db_arrangement)
     db.commit()
     db.refresh(db_arrangement)
@@ -34,10 +40,15 @@ def get_arrangements(
     search: Optional[str] = Query(None),
     approval_status: Optional[str] = Query(None),
     is_confirmed: Optional[bool] = Query(None),
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get all arrangements with optional filters"""
     query = db.query(Arrangement).options(joinedload(Arrangement.case))
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Arrangement.user_id == current_user.id)
 
     # Apply filters
     if search:
@@ -86,12 +97,18 @@ def get_arrangements(
 
 
 @router.get("/stats", response_model=dict)
-def get_arrangement_stats(db: Session = Depends(get_db)):
+def get_arrangement_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get arrangement statistics"""
-    total = db.query(Arrangement).count()
-    pending = db.query(Arrangement).filter(Arrangement.approval_status == "Pending Approval").count()
-    approved = db.query(Arrangement).filter(Arrangement.approval_status == "Approved").count()
-    confirmed = db.query(Arrangement).filter(Arrangement.is_confirmed == True).count()
+    query = db.query(Arrangement)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Arrangement.user_id == current_user.id)
+
+    total = query.count()
+    pending = query.filter(Arrangement.approval_status == "Pending Approval").count()
+    approved = query.filter(Arrangement.approval_status == "Approved").count()
+    confirmed = query.filter(Arrangement.is_confirmed == True).count()
 
     return {
         "total": total,
@@ -102,18 +119,35 @@ def get_arrangement_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/{arrangement_id}", response_model=ArrangementResponse)
-def get_arrangement(arrangement_id: int, db: Session = Depends(get_db)):
+def get_arrangement(arrangement_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get a specific arrangement by ID"""
-    arrangement = db.query(Arrangement).filter(Arrangement.id == arrangement_id).first()
+    query = db.query(Arrangement).filter(Arrangement.id == arrangement_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Arrangement.user_id == current_user.id)
+
+    arrangement = query.first()
     if not arrangement:
         raise HTTPException(status_code=404, detail="Arrangement not found")
     return arrangement
 
 
 @router.put("/{arrangement_id}", response_model=ArrangementResponse)
-def update_arrangement(arrangement_id: int, arrangement_update: ArrangementUpdate, db: Session = Depends(get_db)):
+def update_arrangement(
+    arrangement_id: int,
+    arrangement_update: ArrangementUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Update an arrangement"""
-    db_arrangement = db.query(Arrangement).filter(Arrangement.id == arrangement_id).first()
+    query = db.query(Arrangement).filter(Arrangement.id == arrangement_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Arrangement.user_id == current_user.id)
+
+    db_arrangement = query.first()
     if not db_arrangement:
         raise HTTPException(status_code=404, detail="Arrangement not found")
 
@@ -133,9 +167,15 @@ def update_arrangement(arrangement_id: int, arrangement_update: ArrangementUpdat
 
 
 @router.delete("/{arrangement_id}")
-def delete_arrangement(arrangement_id: int, db: Session = Depends(get_db)):
+def delete_arrangement(arrangement_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete an arrangement"""
-    db_arrangement = db.query(Arrangement).filter(Arrangement.id == arrangement_id).first()
+    query = db.query(Arrangement).filter(Arrangement.id == arrangement_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Arrangement.user_id == current_user.id)
+
+    db_arrangement = query.first()
     if not db_arrangement:
         raise HTTPException(status_code=404, detail="Arrangement not found")
 

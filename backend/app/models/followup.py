@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Text, Date, DateTime, Boolean
+from sqlalchemy import Column, Integer, String, Text, Date, DateTime, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from ..core.database import Base
 
@@ -6,6 +6,7 @@ class Followup(Base):
     __tablename__ = "followups"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     family_id = Column(Integer, nullable=True)
     case_id = Column(Integer, nullable=True)
     task_type = Column(String(100), nullable=False)  # Phone Call, Email, Meeting, Document Review, etc.

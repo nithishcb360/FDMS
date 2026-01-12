@@ -1,9 +1,10 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import AddNoteModal from '@/components/AddNoteModal';
+import EditNoteModal from '@/components/EditNoteModal';
 import { caseNotesApi, CaseNoteData } from '@/lib/api/case-notes';
 import { casesApi, CaseData } from '@/lib/api/cases';
 
@@ -16,6 +17,8 @@ export default function CaseNotesPage() {
   const [caseFilter, setCaseFilter] = useState('All Cases');
   const [followUpFilter, setFollowUpFilter] = useState('All Notes');
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedNote, setSelectedNote] = useState<CaseNoteData | null>(null);
 
   useEffect(() => {
     fetchNotes();
@@ -53,6 +56,17 @@ export default function CaseNotesPage() {
         alert('Failed to delete note');
       }
     }
+  };
+
+  const handleEditNote = (note: CaseNoteData) => {
+    setSelectedNote(note);
+    setIsEditModalOpen(true);
+  };
+
+  const handleNoteUpdated = () => {
+    setIsEditModalOpen(false);
+    setSelectedNote(null);
+    fetchNotes();
   };
 
   // Filter logic
@@ -103,9 +117,9 @@ export default function CaseNotesPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <DashboardHeader />
 
         <main className="flex-1 p-6">
@@ -330,6 +344,7 @@ export default function CaseNotesPage() {
                           <div className="flex items-center gap-2">
                             <button
                               title="Edit"
+                              onClick={() => handleEditNote(note)}
                               className="p-1.5 border border-blue-500 text-blue-500 rounded hover:bg-blue-50 transition-colors"
                             >
                               <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -362,6 +377,14 @@ export default function CaseNotesPage() {
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onSave={fetchNotes}
+      />
+
+      {/* Edit Note Modal */}
+      <EditNoteModal
+        isOpen={isEditModalOpen}
+        onClose={() => setIsEditModalOpen(false)}
+        onSave={handleNoteUpdated}
+        noteData={selectedNote}
       />
     </div>
   );

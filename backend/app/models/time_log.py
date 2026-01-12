@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, Boolean, Text
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, Boolean, Text, ForeignKey
 from sqlalchemy.sql import func
 from app.core.database import Base
 
@@ -6,6 +6,7 @@ class TimeLog(Base):
     __tablename__ = "time_logs"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Basic Information
     staff_member_id = Column(Integer, nullable=False)

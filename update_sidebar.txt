@@ -1,0 +1,18 @@
+The DynamicSidebar needs all sections from Sidebar.tsx with permission checks.
+Since this is a large change, I'll document what needs to happen:
+
+1. DynamicSidebar already has: Dashboard, Cases, Services  with permission checks
+2. Still needs to add with permission checks:
+   - Operations (with Inventory, Fleet, Staff subsections)
+   - Finance
+   - CRM
+   - Documents
+   - Reports & Analytics
+   - Settings
+
+Each section needs:
+- isSectionAllowed('section_name') wrapper
+- isTabAllowed('tab_name') for each sub-item
+
+This will make regular users see only tabs assigned to their role.
+Superadmins will see everything (is_superuser check in isTabAllowed).

@@ -6,6 +6,25 @@ class DocumentType(Base):
     __tablename__ = "document_types"
 
     id = Column(Integer, primary_key=True, index=True)
+
+    # Basic Information
+    document_type = Column(String(100), nullable=False)  # e.g., "Authorization Form", "Death Certificate"
+    type_code = Column(String(50), unique=True, nullable=False)  # e.g., "Authorization Form", "Death Certificate"
+    display_name = Column(String(200), nullable=False)
+    description = Column(Text, nullable=True)
+
+    # Properties
+    is_mandatory = Column(Boolean, default=False)
+    has_expiry = Column(Boolean, default=False)
+
+    # Template
+    has_template = Column(Boolean, default=False)
+    template_file_path = Column(String(500), nullable=True)
+
+    # Status
+    is_active = Column(Boolean, default=True)
+
+    # Timestamps
     name = Column(String(500), nullable=False, unique=True)
     description = Column(String(1000), nullable=True)
     category = Column(String(200), nullable=False)

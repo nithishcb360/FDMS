@@ -16,6 +16,22 @@ class DocumentTypeBase(BaseModel):
 class DocumentTypeCreate(DocumentTypeBase):
     pass
 
+
+class DocumentTypeUpdate(BaseModel):
+    document_type: Optional[str] = None
+    type_code: Optional[str] = None
+    display_name: Optional[str] = None
+    description: Optional[str] = None
+    is_mandatory: Optional[bool] = None
+    has_expiry: Optional[bool] = None
+    has_template: Optional[bool] = None
+    template_file_path: Optional[str] = None
+    is_active: Optional[bool] = None
+
+
+class DocumentTypeResponse(DocumentTypeBase):
+    id: int
+    created_at: Optional[datetime] = None
 class DocumentTypeUpdate(BaseModel):
     name: Optional[str] = None
     description: Optional[str] = None

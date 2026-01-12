@@ -3,16 +3,18 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.time_log import TimeLog
+from app.models.user import User
 from app.schemas.time_log import TimeLogCreate, TimeLogUpdate, TimeLogResponse
 
 router = APIRouter()
 
 
 @router.post("/", response_model=TimeLogResponse)
-def create_time_log(time_log: TimeLogCreate, db: Session = Depends(get_db)):
+def create_time_log(time_log: TimeLogCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Create a new time log"""
-    db_time_log = TimeLog(**time_log.model_dump())
+    db_time_log = TimeLog(**time_log.model_dump(), user_id=current_user.id)
     db.add(db_time_log)
     db.commit()
     db.refresh(db_time_log)
@@ -27,10 +29,15 @@ def get_time_logs(
     status: Optional[str] = None,
     log_type: Optional[str] = None,
     staff_member: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     """Get all time logs with optional filters"""
     query = db.query(TimeLog)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(TimeLog.user_id == current_user.id)
 
     if search:
         query = query.filter(
@@ -51,12 +58,18 @@ def get_time_logs(
 
 
 @router.get("/stats")
-def get_time_log_stats(db: Session = Depends(get_db)):
+def get_time_log_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get time log statistics"""
-    total_logs = db.query(TimeLog).count()
-    total_hours = db.query(func.sum(TimeLog.hours_worked)).scalar() or 0.0
-    total_pay = db.query(func.sum(TimeLog.total_pay)).scalar() or 0.0
-    overtime_hours = db.query(func.sum(TimeLog.hours_worked)).filter(TimeLog.is_overtime == True).scalar() or 0.0
+    query = db.query(TimeLog)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(TimeLog.user_id == current_user.id)
+
+    total_logs = query.count()
+    total_hours = query.with_entities(func.sum(TimeLog.hours_worked)).scalar() or 0.0
+    total_pay = query.with_entities(func.sum(TimeLog.total_pay)).scalar() or 0.0
+    overtime_hours = query.filter(TimeLog.is_overtime == True).with_entities(func.sum(TimeLog.hours_worked)).scalar() or 0.0
 
     return {
         "total_logs": total_logs,
@@ -67,18 +80,30 @@ def get_time_log_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/{time_log_id}", response_model=TimeLogResponse)
-def get_time_log(time_log_id: int, db: Session = Depends(get_db)):
+def get_time_log(time_log_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Get a specific time log by ID"""
-    time_log = db.query(TimeLog).filter(TimeLog.id == time_log_id).first()
+    query = db.query(TimeLog).filter(TimeLog.id == time_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(TimeLog.user_id == current_user.id)
+
+    time_log = query.first()
     if not time_log:
         raise HTTPException(status_code=404, detail="Time log not found")
     return time_log
 
 
 @router.put("/{time_log_id}", response_model=TimeLogResponse)
-def update_time_log(time_log_id: int, time_log: TimeLogUpdate, db: Session = Depends(get_db)):
+def update_time_log(time_log_id: int, time_log: TimeLogUpdate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Update a time log"""
-    db_time_log = db.query(TimeLog).filter(TimeLog.id == time_log_id).first()
+    query = db.query(TimeLog).filter(TimeLog.id == time_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(TimeLog.user_id == current_user.id)
+
+    db_time_log = query.first()
     if not db_time_log:
         raise HTTPException(status_code=404, detail="Time log not found")
 
@@ -92,9 +117,15 @@ def update_time_log(time_log_id: int, time_log: TimeLogUpdate, db: Session = Dep
 
 
 @router.delete("/{time_log_id}")
-def delete_time_log(time_log_id: int, db: Session = Depends(get_db)):
+def delete_time_log(time_log_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     """Delete a time log"""
-    time_log = db.query(TimeLog).filter(TimeLog.id == time_log_id).first()
+    query = db.query(TimeLog).filter(TimeLog.id == time_log_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(TimeLog.user_id == current_user.id)
+
+    time_log = query.first()
     if not time_log:
         raise HTTPException(status_code=404, detail="Time log not found")
 

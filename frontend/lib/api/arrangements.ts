@@ -3,6 +3,11 @@ import axios from 'axios';
 const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/api';
 const API_URL = `${API_BASE_URL}/arrangements`;
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export interface ArrangementData {
   id?: number;
   case_id: number;
@@ -41,31 +46,31 @@ export const arrangementsApi = {
     approval_status?: string;
     is_confirmed?: boolean;
   }): Promise<ArrangementData[]> => {
-    const response = await axios.get(API_URL, { params });
+    const response = await axios.get(API_URL, { params, headers: getAuthHeader() });
     return response.data;
   },
 
   getStats: async (): Promise<ArrangementStats> => {
-    const response = await axios.get(`${API_URL}/stats`);
+    const response = await axios.get(`${API_URL}/stats`, { headers: getAuthHeader() });
     return response.data;
   },
 
   getById: async (id: number): Promise<ArrangementData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, { headers: getAuthHeader() });
     return response.data;
   },
 
   create: async (arrangementData: Omit<ArrangementData, 'id' | 'case_number' | 'deceased_name' | 'created_at' | 'updated_at'>): Promise<ArrangementData> => {
-    const response = await axios.post(API_URL, arrangementData);
+    const response = await axios.post(API_URL, arrangementData, { headers: getAuthHeader() });
     return response.data;
   },
 
   update: async (id: number, arrangementData: Partial<Omit<ArrangementData, 'id' | 'case_number' | 'deceased_name' | 'created_at' | 'updated_at'>>): Promise<ArrangementData> => {
-    const response = await axios.put(`${API_URL}/${id}`, arrangementData);
+    const response = await axios.put(`${API_URL}/${id}`, arrangementData, { headers: getAuthHeader() });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, { headers: getAuthHeader() });
   },
 };

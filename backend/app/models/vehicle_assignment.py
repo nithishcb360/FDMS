@@ -7,6 +7,7 @@ class VehicleAssignment(Base):
     __tablename__ = "vehicle_assignments"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
 
     # Basic Information
     vehicle_id = Column(Integer, ForeignKey("vehicles.id"), nullable=False)

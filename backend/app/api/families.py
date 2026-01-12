@@ -3,13 +3,15 @@ from sqlalchemy.orm import Session
 from sqlalchemy import func
 from typing import List, Optional
 from ..models.family import Family
+from ..models.user import User
 from ..schemas.family import FamilyCreate, FamilyUpdate, FamilyResponse
 from ..core.database import get_db
+from ..core.security import get_current_user
 
 router = APIRouter()
 
 @router.post("/", response_model=FamilyResponse)
-def create_family(family: FamilyCreate, db: Session = Depends(get_db)):
+def create_family(family: FamilyCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
     # Auto-generate family ID
     latest_family = db.query(Family).order_by(Family.id.desc()).first()
     if latest_family and latest_family.family_id:
@@ -27,7 +29,7 @@ def create_family(family: FamilyCreate, db: Session = Depends(get_db)):
     family_data['lifetime_value'] = 0.0
     family_data['status'] = "Active"
 
-    db_family = Family(**family_data)
+    db_family = Family(**family_data, user_id=current_user.id)
     db.add(db_family)
     db.commit()
     db.refresh(db_family)
@@ -39,9 +41,14 @@ def get_families(
     limit: int = 100,
     search: Optional[str] = None,
     status: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
     query = db.query(Family)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Family.user_id == current_user.id)
 
     if search:
         query = query.filter(
@@ -58,16 +65,22 @@ def get_families(
     return families
 
 @router.get("/stats")
-def get_family_stats(db: Session = Depends(get_db)):
-    total_families = db.query(func.count(Family.id)).scalar()
+def get_family_stats(db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Family)
 
-    active_families = db.query(func.count(Family.id)).filter(
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Family.user_id == current_user.id)
+
+    total_families = query.count()
+
+    active_families = query.filter(
         Family.status == "Active"
-    ).scalar()
+    ).count()
 
-    total_revenue = db.query(func.sum(Family.lifetime_value)).scalar() or 0.0
+    total_revenue = query.with_entities(func.sum(Family.lifetime_value)).scalar() or 0.0
 
-    avg_lifetime_value = db.query(func.avg(Family.lifetime_value)).scalar() or 0.0
+    avg_lifetime_value = query.with_entities(func.avg(Family.lifetime_value)).scalar() or 0.0
 
     return {
         "total_families": total_families,
@@ -77,8 +90,14 @@ def get_family_stats(db: Session = Depends(get_db)):
     }
 
 @router.get("/{family_id}", response_model=FamilyResponse)
-def get_family(family_id: int, db: Session = Depends(get_db)):
-    family = db.query(Family).filter(Family.id == family_id).first()
+def get_family(family_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Family).filter(Family.id == family_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Family.user_id == current_user.id)
+
+    family = query.first()
     if not family:
         raise HTTPException(status_code=404, detail="Family not found")
     return family
@@ -87,9 +106,16 @@ def get_family(family_id: int, db: Session = Depends(get_db)):
 def update_family(
     family_id: int,
     family: FamilyUpdate,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    db_family = db.query(Family).filter(Family.id == family_id).first()
+    query = db.query(Family).filter(Family.id == family_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Family.user_id == current_user.id)
+
+    db_family = query.first()
     if not db_family:
         raise HTTPException(status_code=404, detail="Family not found")
 
@@ -102,8 +128,14 @@ def update_family(
     return db_family
 
 @router.delete("/{family_id}")
-def delete_family(family_id: int, db: Session = Depends(get_db)):
-    db_family = db.query(Family).filter(Family.id == family_id).first()
+def delete_family(family_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_user)):
+    query = db.query(Family).filter(Family.id == family_id)
+
+    # If not superadmin, ensure item belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Family.user_id == current_user.id)
+
+    db_family = query.first()
     if not db_family:
         raise HTTPException(status_code=404, detail="Family not found")
 

@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import AddProductModal from '@/components/AddProductModal';
 import { productsApi, ProductData } from '@/lib/api/products';
@@ -107,9 +107,9 @@ export default function ProductsPage() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar />
+      <DynamicSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <DashboardHeader />
 
         <main className="flex-1 p-6">

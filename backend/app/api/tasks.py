@@ -4,7 +4,9 @@ from sqlalchemy import or_, and_
 from typing import List, Optional
 
 from app.core.database import get_db
+from app.core.security import get_current_user
 from app.models.task import Task
+from app.models.user import User
 from app.schemas.task import TaskCreate, TaskUpdate, TaskResponse
 
 router = APIRouter()
@@ -12,9 +14,13 @@ router = APIRouter()
 
 @router.post("/", response_model=TaskResponse)
 @router.post("", response_model=TaskResponse)
-def create_task(task: TaskCreate, db: Session = Depends(get_db)):
+def create_task(
+    task: TaskCreate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Create a new task"""
-    db_task = Task(**task.model_dump())
+    db_task = Task(user_id=current_user.id, **task.model_dump())
     db.add(db_task)
     db.commit()
     db.refresh(db_task)
@@ -30,10 +36,15 @@ def get_tasks(
     status: Optional[str] = None,
     priority: Optional[str] = None,
     category: Optional[str] = None,
-    db: Session = Depends(get_db)
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
 ):
-    """Get all tasks with optional filters"""
+    """Get all tasks for current user (or all tasks if superadmin)"""
     query = db.query(Task)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Task.user_id == current_user.id)
 
     # Apply filters
     if search:
@@ -60,12 +71,21 @@ def get_tasks(
 
 
 @router.get("/stats")
-def get_task_stats(db: Session = Depends(get_db)):
-    """Get task statistics"""
-    total_tasks = db.query(Task).count()
-    pending = db.query(Task).filter(Task.status == "Pending").count()
-    in_progress = db.query(Task).filter(Task.status == "In Progress").count()
-    completed = db.query(Task).filter(Task.status == "Completed").count()
+def get_task_stats(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
+    """Get task statistics for current user"""
+    query = db.query(Task)
+
+    # If not superadmin, filter by user_id
+    if not current_user.is_superuser:
+        query = query.filter(Task.user_id == current_user.id)
+
+    total_tasks = query.count()
+    pending = query.filter(Task.status == "Pending").count()
+    in_progress = query.filter(Task.status == "In Progress").count()
+    completed = query.filter(Task.status == "Completed").count()
 
     return {
         "total_tasks": total_tasks,
@@ -76,18 +96,39 @@ def get_task_stats(db: Session = Depends(get_db)):
 
 
 @router.get("/{task_id}", response_model=TaskResponse)
-def get_task_by_id(task_id: int, db: Session = Depends(get_db)):
+def get_task_by_id(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Get a specific task by ID"""
-    task = db.query(Task).filter(Task.id == task_id).first()
+    query = db.query(Task).filter(Task.id == task_id)
+
+    # If not superadmin, ensure task belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Task.user_id == current_user.id)
+
+    task = query.first()
     if not task:
         raise HTTPException(status_code=404, detail="Task not found")
     return task
 
 
 @router.put("/{task_id}", response_model=TaskResponse)
-def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get_db)):
+def update_task(
+    task_id: int,
+    task_update: TaskUpdate,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Update a task"""
-    db_task = db.query(Task).filter(Task.id == task_id).first()
+    query = db.query(Task).filter(Task.id == task_id)
+
+    # If not superadmin, ensure task belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Task.user_id == current_user.id)
+
+    db_task = query.first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 
@@ -101,9 +142,19 @@ def update_task(task_id: int, task_update: TaskUpdate, db: Session = Depends(get
 
 
 @router.delete("/{task_id}")
-def delete_task(task_id: int, db: Session = Depends(get_db)):
+def delete_task(
+    task_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user)
+):
     """Delete a task"""
-    db_task = db.query(Task).filter(Task.id == task_id).first()
+    query = db.query(Task).filter(Task.id == task_id)
+
+    # If not superadmin, ensure task belongs to user
+    if not current_user.is_superuser:
+        query = query.filter(Task.user_id == current_user.id)
+
+    db_task = query.first()
     if not db_task:
         raise HTTPException(status_code=404, detail="Task not found")
 

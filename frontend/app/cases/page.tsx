@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import Sidebar from '@/components/Sidebar';
+import DynamicSidebar from '@/components/DynamicSidebar';
 import DashboardHeader from '@/components/DashboardHeader';
 import NewCaseModal from '@/components/NewCaseModal';
 import ViewCaseModal from '@/components/ViewCaseModal';
@@ -119,9 +119,9 @@ export default function CasesPage() {
 
   return (
     <div className="flex min-h-screen bg-white">
-      <Sidebar />
+      <DynamicSidebar />
 
-      <div className="flex-1 flex flex-col">
+      <div className="flex-1 flex flex-col lg:ml-64">
         <DashboardHeader />
 
         <main className="flex-1 p-6 lg:p-8">

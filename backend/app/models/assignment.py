@@ -7,6 +7,7 @@ class Assignment(Base):
     __tablename__ = "assignments"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     case_number = Column(String(50), ForeignKey("cases.case_number"), nullable=False, index=True)
 
     # Staff Information

@@ -24,28 +24,43 @@ export interface CaseData {
   updated_at?: string;
 }
 
+const getAuthHeader = () => {
+  const token = localStorage.getItem('access_token');
+  return token ? { Authorization: `Bearer ${token}` } : {};
+};
+
 export const casesApi = {
   getAll: async (): Promise<CaseData[]> => {
-    const response = await axios.get(API_URL);
+    const response = await axios.get(API_URL, {
+      headers: getAuthHeader(),
+    });
     return response.data;
   },
 
   getById: async (id: number): Promise<CaseData> => {
-    const response = await axios.get(`${API_URL}/${id}`);
+    const response = await axios.get(`${API_URL}/${id}`, {
+      headers: getAuthHeader(),
+    });
     return response.data;
   },
 
   create: async (caseData: CaseData): Promise<CaseData> => {
-    const response = await axios.post(API_URL, caseData);
+    const response = await axios.post(API_URL, caseData, {
+      headers: getAuthHeader(),
+    });
     return response.data;
   },
 
   update: async (id: number, caseData: Partial<CaseData>): Promise<CaseData> => {
-    const response = await axios.put(`${API_URL}/${id}`, caseData);
+    const response = await axios.put(`${API_URL}/${id}`, caseData, {
+      headers: getAuthHeader(),
+    });
     return response.data;
   },
 
   delete: async (id: number): Promise<void> => {
-    await axios.delete(`${API_URL}/${id}`);
+    await axios.delete(`${API_URL}/${id}`, {
+      headers: getAuthHeader(),
+    });
   },
 };

@@ -1,7 +1,8 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { casesApi, CaseData } from '@/lib/api/cases';
+import { staffApi, StaffData } from '@/lib/api/staff';
 
 interface NewCaseModalProps {
   isOpen: boolean;
@@ -27,6 +28,15 @@ const SERVICE_TYPES = [
   'Viewing Only',
 ];
 
+// Role options for assignment
+const ROLE_OPTIONS = [
+  'Funeral Director',
+  'Embalmer',
+  'Assistant',
+  'Driver',
+  'Coordinator',
+];
+
 export default function NewCaseModal({ isOpen, onClose, onCaseCreated }: NewCaseModalProps) {
   const [formData, setFormData] = useState<Partial<CaseData>>({
     gender: 'Unknown',
@@ -36,6 +46,36 @@ export default function NewCaseModal({ isOpen, onClose, onCaseCreated }: NewCase
   });
   const [photoFile, setPhotoFile] = useState<File | null>(null);
   const [submitting, setSubmitting] = useState(false);
+  const [staffMembers, setStaffMembers] = useState<StaffData[]>([]);
+  const [loadingStaff, setLoadingStaff] = useState(false);
+  const [assignmentData, setAssignmentData] = useState({
+    staff_member: '',
+    role: '',
+    instructions: '',
+  });
+
+  // Fetch staff members when modal opens
+  useEffect(() => {
+    if (isOpen) {
+      fetchStaffMembers();
+    }
+  }, [isOpen]);
+
+  const fetchStaffMembers = async () => {
+    setLoadingStaff(true);
+    try {
+      // Fetch all staff members (don't filter by status yet)
+      const staff = await staffApi.getAll();
+      // Filter for active staff members on the frontend
+      const activeStaff = staff.filter(s => s.is_active !== false && s.status !== 'Terminated');
+      setStaffMembers(activeStaff.length > 0 ? activeStaff : staff);
+      console.log('Fetched staff members:', staff);
+    } catch (error) {
+      console.error('Error fetching staff members:', error);
+    } finally {
+      setLoadingStaff(false);
+    }
+  };
 
   if (!isOpen) return null;
 
@@ -69,6 +109,11 @@ export default function NewCaseModal({ isOpen, onClose, onCaseCreated }: NewCase
     } else {
       setFormData({ ...formData, [name]: value });
     }
+  };
+
+  const handleAssignmentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+    const { name, value } = e.target;
+    setAssignmentData({ ...assignmentData, [name]: value });
   };
 
   return (
@@ -290,7 +335,7 @@ export default function NewCaseModal({ isOpen, onClose, onCaseCreated }: NewCase
             </div>
 
             {/* Internal Notes */}
-            <div>
+            <div className="mb-6">
               <label className="block text-sm font-medium text-gray-700 mb-2">Internal Notes</label>
               <textarea
                 name="internal_notes"
@@ -304,6 +349,78 @@ export default function NewCaseModal({ isOpen, onClose, onCaseCreated }: NewCase
                 Internal staff notes - not visible to family
               </p>
             </div>
+          </div>
+
+          {/* Staff Assignment Section */}
+          <div>
+            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
+              <span className="text-lg">👥</span>
+              <h3 className="font-semibold text-gray-800">Staff Assignment (Optional)</h3>
+            </div>
+
+            {/* Staff Member and Role */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Assign Staff Member</label>
+                <select
+                  name="staff_member"
+                  value={assignmentData.staff_member}
+                  onChange={handleAssignmentChange}
+                  disabled={loadingStaff || staffMembers.length === 0}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 disabled:bg-gray-100"
+                >
+                  <option value="">
+                    {staffMembers.length === 0 && !loadingStaff
+                      ? '-- No Staff Members Available --'
+                      : '-- Select Staff Member --'}
+                  </option>
+                  {staffMembers.map((staff) => (
+                    <option key={staff.id} value={`${staff.first_name} ${staff.last_name}`}>
+                      {staff.first_name} {staff.last_name} - {staff.position}
+                    </option>
+                  ))}
+                </select>
+                {loadingStaff && (
+                  <p className="text-xs text-gray-500 mt-1">Loading staff members...</p>
+                )}
+                {!loadingStaff && staffMembers.length === 0 && (
+                  <p className="text-xs text-amber-600 mt-1 flex items-center gap-1">
+                    <span>⚠️</span>
+                    No active staff members found. Please create staff members first.
+                  </p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Role</label>
+                <select
+                  name="role"
+                  value={assignmentData.role}
+                  onChange={handleAssignmentChange}
+                  disabled={!assignmentData.staff_member}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none text-gray-900 disabled:bg-gray-100"
+                >
+                  <option value="">-- Select Role --</option>
+                  {ROLE_OPTIONS.map((role) => (
+                    <option key={role} value={role}>{role}</option>
+                  ))}
+                </select>
+              </div>
+            </div>
+
+            {/* Assignment Instructions */}
+            {assignmentData.staff_member && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">Instructions</label>
+                <textarea
+                  name="instructions"
+                  value={assignmentData.instructions}
+                  onChange={handleAssignmentChange}
+                  rows={3}
+                  placeholder="Any specific instructions for this staff member..."
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none resize-none text-gray-900"
+                />
+              </div>
+            )}
           </div>
         </div>
 

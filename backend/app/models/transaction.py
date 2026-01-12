@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, Date, DateTime, Text, Boolean
+from sqlalchemy import Column, Integer, String, Float, Date, DateTime, Text, Boolean, ForeignKey
 from sqlalchemy.sql import func
 from ..core.database import Base
 
@@ -6,6 +6,7 @@ class Transaction(Base):
     __tablename__ = "transactions"
 
     id = Column(Integer, primary_key=True, index=True)
+    user_id = Column(Integer, ForeignKey("users.id"), nullable=True, index=True)
     transaction_id = Column(String(100), unique=True, nullable=False)
     transaction_type = Column(String(50), nullable=False)  # Income, Expense
     category = Column(String(100), nullable=False)
