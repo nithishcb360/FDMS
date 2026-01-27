@@ -11,12 +11,21 @@ interface ViewScheduleModalProps {
 export default function ViewScheduleModal({ isOpen, onClose, scheduleData }: ViewScheduleModalProps) {
   if (!isOpen || !scheduleData) return null;
 
-  const formatDateTime = (dateString: string) => {
+  const formatDate = (dateString: string) => {
     const date = new Date(dateString);
-    return date.toLocaleString('en-US', {
+    return date.toLocaleDateString('en-US', {
       month: 'short',
       day: '2-digit',
-      year: 'numeric',
+      year: 'numeric'
+    });
+  };
+
+  const formatTime = (timeString: string) => {
+    // timeString is in HH:MM format
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
+    return date.toLocaleTimeString('en-US', {
       hour: '2-digit',
       minute: '2-digit',
       hour12: true
@@ -33,148 +42,119 @@ export default function ViewScheduleModal({ isOpen, onClose, scheduleData }: Vie
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
             </svg>
             <div>
-              <h2 className="text-xl font-bold text-gray-800">Schedule Details</h2>
-              <p className="text-sm text-gray-600">View service schedule information</p>
+              <h2 className="text-xl font-bold text-gray-800">Staff Schedule Details</h2>
+              <p className="text-sm text-gray-600">View staff shift information</p>
             </div>
           </div>
         </div>
 
         {/* Content */}
         <div className="px-6 py-6 max-h-[70vh] overflow-y-auto">
-          {/* Case Information */}
+          {/* Staff & Shift Information */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
               <svg className="w-5 h-5" style={{ color: '#D4AF37' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
               </svg>
-              <h3 className="font-semibold text-gray-800">Event Details</h3>
+              <h3 className="font-semibold text-gray-800">Staff & Shift Information</h3>
             </div>
 
             <div className="grid grid-cols-2 gap-4 mb-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Case Number</label>
-                <p className="text-sm text-gray-900 font-medium">{scheduleData.case_number}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Staff Member</label>
+                <p className="text-sm text-gray-900 font-medium">{scheduleData.staff_member_name}</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Deceased Name</label>
-                <p className="text-sm text-gray-900 font-medium">{scheduleData.deceased_name}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Shift Date</label>
+                <p className="text-sm text-gray-900 font-medium">{formatDate(scheduleData.shift_date)}</p>
               </div>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 mb-4">
+            <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Event Type</label>
-                <p className="text-sm text-gray-900">{scheduleData.event_type}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Shift Type</label>
+                <p className="text-sm text-gray-900">{scheduleData.shift_type}</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Title</label>
-                <p className="text-sm text-gray-900">{scheduleData.title}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Status</label>
+                <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
+                  scheduleData.status === 'Completed'
+                    ? 'bg-green-100 text-green-700 border border-green-300'
+                    : scheduleData.status === 'Scheduled'
+                    ? 'bg-blue-100 text-blue-700 border border-blue-300'
+                    : scheduleData.status === 'Cancelled'
+                    ? 'bg-red-100 text-red-700 border border-red-300'
+                    : 'bg-gray-100 text-gray-700 border border-gray-300'
+                }`}>
+                  {scheduleData.status}
+                </span>
               </div>
             </div>
-
-            {scheduleData.description && (
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Description</label>
-                <p className="text-sm text-gray-900">{scheduleData.description}</p>
-              </div>
-            )}
           </div>
 
-          {/* Date & Time */}
+          {/* Time Details */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
               <svg className="w-5 h-5" style={{ color: '#D4AF37' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="font-semibold text-gray-800">Date & Time</h3>
+              <h3 className="font-semibold text-gray-800">Time Details</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-3 gap-4">
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Start Date & Time</label>
-                <p className="text-sm text-gray-900">{formatDateTime(scheduleData.start_datetime)}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Start Time</label>
+                <p className="text-sm text-gray-900">{formatTime(scheduleData.start_time)}</p>
               </div>
               <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">End Date & Time</label>
-                <p className="text-sm text-gray-900">{formatDateTime(scheduleData.end_datetime)}</p>
+                <label className="block text-xs font-medium text-gray-500 mb-1">End Time</label>
+                <p className="text-sm text-gray-900">{formatTime(scheduleData.end_time)}</p>
+              </div>
+              <div>
+                <label className="block text-xs font-medium text-gray-500 mb-1">Break Duration</label>
+                <p className="text-sm text-gray-900">{scheduleData.break_duration ? `${scheduleData.break_duration} minutes` : 'N/A'}</p>
               </div>
             </div>
           </div>
 
-          {/* Location */}
+          {/* Additional Information */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
               <svg className="w-5 h-5" style={{ color: '#D4AF37' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
               </svg>
-              <h3 className="font-semibold text-gray-800">Location</h3>
+              <h3 className="font-semibold text-gray-800">Additional Information</h3>
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Venue</label>
-                <p className="text-sm text-gray-900">{scheduleData.venue || 'N/A'}</p>
+            <div className="grid grid-cols-2 gap-4 mb-4">
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-gray-500">Overtime Shift:</label>
+                <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${
+                  scheduleData.is_overtime
+                    ? 'bg-orange-100 text-orange-700 border border-orange-300'
+                    : 'bg-gray-100 text-gray-700 border border-gray-300'
+                }`}>
+                  {scheduleData.is_overtime ? 'Yes' : 'No'}
+                </span>
               </div>
-              {scheduleData.location_details && (
-                <div>
-                  <label className="block text-xs font-medium text-gray-500 mb-1">Location Details</label>
-                  <p className="text-sm text-gray-900">{scheduleData.location_details}</p>
-                </div>
-              )}
-            </div>
-          </div>
-
-          {/* Staff & Notes */}
-          <div className="mb-6">
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
-              <svg className="w-5 h-5" style={{ color: '#D4AF37' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
-              </svg>
-              <h3 className="font-semibold text-gray-800">Staff & Notes</h3>
-            </div>
-
-            {scheduleData.assigned_staff && (
-              <div className="mb-4">
-                <label className="block text-xs font-medium text-gray-500 mb-1">Assigned Staff</label>
-                <p className="text-sm text-gray-900">{scheduleData.assigned_staff}</p>
+              <div className="flex items-center gap-2">
+                <label className="text-xs font-medium text-gray-500">Holiday Shift:</label>
+                <span className={`inline-block px-2 py-0.5 text-xs font-medium rounded ${
+                  scheduleData.is_holiday
+                    ? 'bg-purple-100 text-purple-700 border border-purple-300'
+                    : 'bg-gray-100 text-gray-700 border border-gray-300'
+                }`}>
+                  {scheduleData.is_holiday ? 'Yes' : 'No'}
+                </span>
               </div>
-            )}
+            </div>
 
             {scheduleData.notes && (
-              <div className="mb-4">
+              <div>
                 <label className="block text-xs font-medium text-gray-500 mb-1">Notes</label>
                 <p className="text-sm text-gray-900">{scheduleData.notes}</p>
               </div>
             )}
-
-            {scheduleData.setup_notes && (
-              <div>
-                <label className="block text-xs font-medium text-gray-500 mb-1">Setup Notes</label>
-                <p className="text-sm text-gray-900">{scheduleData.setup_notes}</p>
-              </div>
-            )}
-          </div>
-
-          {/* Status */}
-          <div>
-            <div className="flex items-center gap-2 mb-4 pb-2 border-b border-gray-200">
-              <svg className="w-5 h-5" style={{ color: '#D4AF37' }} fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-              <h3 className="font-semibold text-gray-800">Status</h3>
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-gray-500 mb-1">Confirmation Status</label>
-              <span className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
-                scheduleData.confirmation_status
-                  ? 'bg-green-100 text-green-700 border border-green-300'
-                  : 'bg-gray-100 text-gray-700 border border-gray-300'
-              }`}>
-                {scheduleData.confirmation_status ? 'Yes, Confirmed' : 'Not Confirmed'}
-              </span>
-            </div>
           </div>
         </div>
 

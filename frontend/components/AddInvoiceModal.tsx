@@ -145,12 +145,12 @@ export default function AddInvoiceModal({ isOpen, onClose, onSave, invoice }: Ad
       const submitData = {
         invoice_number: formData.invoice_number,
         client_name: formData.client_name,
-        client_email: formData.client_email || null,
-        client_phone: formData.client_phone || null,
-        billing_address: formData.billing_address || null,
-        branch: formData.branch || null,
-        case_reference: formData.case_reference || null,
-        service_reference: formData.service_reference || null,
+        client_email: formData.client_email || undefined,
+        client_phone: formData.client_phone || undefined,
+        billing_address: formData.billing_address || undefined,
+        branch: formData.branch || undefined,
+        case_reference: formData.case_reference || undefined,
+        service_reference: formData.service_reference || undefined,
         invoice_date: formData.invoice_date,
         due_date: formData.due_date,
         status: formData.status,
@@ -160,9 +160,9 @@ export default function AddInvoiceModal({ isOpen, onClose, onSave, invoice }: Ad
         total_amount: parseFloat(formData.total_amount) || 0,
         paid_amount: parseFloat(formData.paid_amount) || 0,
         balance: parseFloat(formData.balance) || 0,
-        payment_terms: formData.payment_terms || null,
-        internal_notes: formData.internal_notes || null,
-        client_notes: formData.client_notes || null
+        payment_terms: formData.payment_terms || undefined,
+        internal_notes: formData.internal_notes || undefined,
+        client_notes: formData.client_notes || undefined
       };
 
       if (invoice?.id) {

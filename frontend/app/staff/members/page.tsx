@@ -63,9 +63,9 @@ export default function StaffPage() {
       filtered = filtered.filter(member =>
         member.first_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         member.last_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        member.employee_id.toLowerCase().includes(searchQuery.toLowerCase()) ||
         member.email.toLowerCase().includes(searchQuery.toLowerCase()) ||
-        member.position.toLowerCase().includes(searchQuery.toLowerCase())
+        member.position.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        (member.id && member.id.toString().includes(searchQuery))
       );
     }
 
@@ -303,7 +303,7 @@ export default function StaffPage() {
                 <tbody className="divide-y divide-gray-200">
                   {filteredStaff.map((member) => (
                     <tr key={member.id} className="hover:bg-gray-50">
-                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{member.employee_id}</td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">{member.id || 'N/A'}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">
                         {member.first_name} {member.last_name}
                       </td>

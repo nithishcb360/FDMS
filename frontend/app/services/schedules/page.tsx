@@ -49,8 +49,11 @@ export default function ServiceSchedulePage() {
     return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' });
   };
 
-  const formatTime = (dateString: string) => {
-    const date = new Date(dateString);
+  const formatTime = (timeString: string) => {
+    // Handle time string format (HH:MM:SS or HH:MM)
+    const [hours, minutes] = timeString.split(':');
+    const date = new Date();
+    date.setHours(parseInt(hours), parseInt(minutes));
     return date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', hour12: true });
   };
 
@@ -77,14 +80,17 @@ export default function ServiceSchedulePage() {
     }
   };
 
-  const getStatusColor = (confirmed: boolean) => {
-    return confirmed
-      ? 'bg-green-600 text-white'
-      : 'bg-gray-500 text-white';
-  };
-
-  const getStatusText = (confirmed: boolean) => {
-    return confirmed ? 'Confirmed' : 'Not Confirmed';
+  const getStatusColor = (status: string) => {
+    switch (status.toLowerCase()) {
+      case 'scheduled':
+        return 'bg-blue-600 text-white';
+      case 'completed':
+        return 'bg-green-600 text-white';
+      case 'cancelled':
+        return 'bg-red-600 text-white';
+      default:
+        return 'bg-gray-500 text-white';
+    }
   };
 
   return (
@@ -118,10 +124,10 @@ export default function ServiceSchedulePage() {
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Date & Time</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Event Type / Title</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Case</th>
-                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Venue</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Staff Member</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Shift Type</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Status</th>
+                  <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Notes</th>
                   <th className="text-left px-4 py-3 text-xs font-semibold text-gray-700">Actions</th>
                 </tr>
               </thead>
@@ -147,26 +153,27 @@ export default function ServiceSchedulePage() {
                       }`}
                     >
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900">{formatDateTime(schedule.start_datetime)}</div>
+                        <div className="text-sm font-medium text-gray-900">{formatDateTime(schedule.shift_date)}</div>
                         <div className="text-xs text-gray-600">
-                          {formatTime(schedule.start_datetime)} - {formatTime(schedule.end_datetime)}
+                          {formatTime(schedule.start_time)} - {formatTime(schedule.end_time)}
                         </div>
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-gray-900">{schedule.event_type}</div>
-                        <div className="text-xs text-gray-600">{schedule.title}</div>
+                        <div className="text-sm font-medium text-gray-900">{schedule.staff_member_name}</div>
+                        {schedule.is_overtime && <div className="text-xs text-orange-600">Overtime</div>}
+                        {schedule.is_holiday && <div className="text-xs text-purple-600">Holiday</div>}
                       </td>
                       <td className="px-4 py-3">
-                        <div className="text-sm font-medium text-blue-600">{schedule.deceased_name}</div>
-                        <div className="text-xs text-gray-500">{schedule.case_number}</div>
+                        <div className="text-sm font-medium text-gray-900">{schedule.shift_type}</div>
+                        {schedule.break_duration && <div className="text-xs text-gray-500">Break: {schedule.break_duration} min</div>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <span className={`inline-block px-3 py-1 text-xs font-medium rounded ${getStatusColor(schedule.status)}`}>
+                          {schedule.status}
+                        </span>
                       </td>
                       <td className="px-4 py-3 text-sm text-gray-600">
-                        {schedule.venue || 'N/A'}
-                      </td>
-                      <td className="px-4 py-3">
-                        <span className={`inline-block px-3 py-1 text-xs font-medium rounded ${getStatusColor(schedule.confirmation_status || false)}`}>
-                          {getStatusText(schedule.confirmation_status || false)}
-                        </span>
+                        {schedule.notes || 'N/A'}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2">

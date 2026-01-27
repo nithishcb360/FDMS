@@ -12,11 +12,10 @@ interface EditStaffModalProps {
 
 export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditStaffModalProps) {
   const [formData, setFormData] = useState({
-    employee_id: '',
     first_name: '',
     last_name: '',
     email: '',
-    phone: '',
+    primary_phone: '',
     date_of_birth: '',
     department: '',
     position: '',
@@ -25,10 +24,9 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
     hire_date: '',
     termination_date: '',
     status: 'Active',
-    address: '',
+    address_line1: '',
     emergency_contact_name: '',
     emergency_contact_phone: '',
-    qualifications: '',
     notes: '',
   });
 
@@ -38,11 +36,10 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
   useEffect(() => {
     if (staff && isOpen) {
       setFormData({
-        employee_id: staff.employee_id || '',
         first_name: staff.first_name || '',
         last_name: staff.last_name || '',
         email: staff.email || '',
-        phone: staff.phone || '',
+        primary_phone: staff.primary_phone || '',
         date_of_birth: staff.date_of_birth || '',
         department: staff.department || '',
         position: staff.position || '',
@@ -51,10 +48,9 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
         hire_date: staff.hire_date || '',
         termination_date: staff.termination_date || '',
         status: staff.status || 'Active',
-        address: staff.address || '',
+        address_line1: staff.address_line1 || '',
         emergency_contact_name: staff.emergency_contact_name || '',
         emergency_contact_phone: staff.emergency_contact_phone || '',
-        qualifications: staff.qualifications || '',
         notes: staff.notes || '',
       });
       setError('');
@@ -83,7 +79,6 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
     try {
       // Prepare data
       const submitData: any = {
-        employee_id: formData.employee_id,
         first_name: formData.first_name,
         last_name: formData.last_name,
         email: formData.email,
@@ -95,14 +90,13 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
       };
 
       // Add optional fields
-      if (formData.phone) submitData.phone = formData.phone;
+      if (formData.primary_phone) submitData.primary_phone = formData.primary_phone;
       if (formData.date_of_birth) submitData.date_of_birth = formData.date_of_birth;
       if (formData.branch) submitData.branch = formData.branch;
       if (formData.termination_date) submitData.termination_date = formData.termination_date;
-      if (formData.address) submitData.address = formData.address;
+      if (formData.address_line1) submitData.address_line1 = formData.address_line1;
       if (formData.emergency_contact_name) submitData.emergency_contact_name = formData.emergency_contact_name;
       if (formData.emergency_contact_phone) submitData.emergency_contact_phone = formData.emergency_contact_phone;
-      if (formData.qualifications) submitData.qualifications = formData.qualifications;
       if (formData.notes) submitData.notes = formData.notes;
 
       await staffApi.update(staff.id, submitData);
@@ -167,15 +161,13 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Employee ID <span className="text-red-500">*</span>
+                  Staff ID
                 </label>
                 <input
                   type="text"
-                  name="employee_id"
-                  value={formData.employee_id}
-                  onChange={handleChange}
-                  required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  value={staff?.id || 'N/A'}
+                  disabled
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg bg-gray-100 cursor-not-allowed"
                 />
               </div>
 
@@ -227,8 +219,8 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
                 </label>
                 <input
                   type="tel"
-                  name="phone"
-                  value={formData.phone}
+                  name="primary_phone"
+                  value={formData.primary_phone}
                   onChange={handleChange}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                 />
@@ -374,8 +366,8 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
                   Address
                 </label>
                 <textarea
-                  name="address"
-                  value={formData.address}
+                  name="address_line1"
+                  value={formData.address_line1}
                   onChange={handleChange}
                   rows={2}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
@@ -408,19 +400,6 @@ export default function EditStaffModal({ isOpen, onClose, onSave, staff }: EditS
                     className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
                   />
                 </div>
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Qualifications
-                </label>
-                <textarea
-                  name="qualifications"
-                  value={formData.qualifications}
-                  onChange={handleChange}
-                  rows={2}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-                />
               </div>
 
               <div>
