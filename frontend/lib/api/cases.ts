@@ -4,6 +4,7 @@ const API_BASE_URL = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000/a
 const API_URL = `${API_BASE_URL}/cases`;
 
 export interface CaseData {
+  case_id: string | number | readonly string[] | undefined;
   id?: number;
   case_number?: string;
   first_name: string;

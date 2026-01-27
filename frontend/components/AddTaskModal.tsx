@@ -133,16 +133,16 @@ export default function AddTaskModal({ isOpen, onClose, onSave, task }: AddTaskM
         category: formData.category,
         priority: formData.priority,
         status: formData.status,
-        case_reference: formData.case_reference || null,
-        client_reference: formData.client_reference || null,
-        branch: formData.branch || null,
+        case_reference: formData.case_reference || undefined,
+        client_reference: formData.client_reference || undefined,
+        branch: formData.branch || undefined,
         due_date: formData.due_date,
-        due_time: formData.due_time || null,
-        estimated_hours: formData.estimated_hours ? parseFloat(formData.estimated_hours) : null,
-        actual_hours: formData.actual_hours ? parseFloat(formData.actual_hours) : null,
-        supervisor: formData.supervisor || null,
+        due_time: formData.due_time || undefined,
+        estimated_hours: formData.estimated_hours ? parseFloat(formData.estimated_hours) : undefined,
+        actual_hours: formData.actual_hours ? parseFloat(formData.actual_hours) : undefined,
+        supervisor: formData.supervisor || undefined,
         supervision_required: formData.supervision_required,
-        notes: formData.notes || null
+        notes: formData.notes || undefined
       };
 
       if (task?.id) {

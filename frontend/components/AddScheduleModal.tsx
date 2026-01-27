@@ -136,7 +136,7 @@ export default function AddScheduleModal({ isOpen, onClose, onSave, schedule }: 
         break_duration: formData.break_duration ? parseInt(formData.break_duration) : 30,
         is_overtime: formData.is_overtime,
         is_holiday: formData.is_holiday,
-        notes: formData.notes || null
+        notes: formData.notes || undefined
       };
 
       if (schedule?.id) {

@@ -68,8 +68,8 @@ export default function ViewStaffModal({ isOpen, onClose, staff }: ViewStaffModa
             <h4 className="text-lg font-semibold text-gray-900 mb-4">Personal Information</h4>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
-                <p className="text-sm text-gray-600">Employee ID</p>
-                <p className="text-base font-medium text-gray-900">{staff.employee_id}</p>
+                <p className="text-sm text-gray-600">Staff ID</p>
+                <p className="text-base font-medium text-gray-900">{staff.id || 'N/A'}</p>
               </div>
               <div>
                 <p className="text-sm text-gray-600">Email</p>
@@ -82,9 +82,9 @@ export default function ViewStaffModal({ isOpen, onClose, staff }: ViewStaffModa
               <div>
                 <p className="text-sm text-gray-600">Phone</p>
                 <p className="text-base font-medium text-gray-900">
-                  {staff.phone ? (
-                    <a href={`tel:${staff.phone}`} className="text-blue-600 hover:underline">
-                      {staff.phone}
+                  {staff.primary_phone ? (
+                    <a href={`tel:${staff.primary_phone}`} className="text-blue-600 hover:underline">
+                      {staff.primary_phone}
                     </a>
                   ) : '-'}
                 </p>
@@ -93,10 +93,10 @@ export default function ViewStaffModal({ isOpen, onClose, staff }: ViewStaffModa
                 <p className="text-sm text-gray-600">Date of Birth</p>
                 <p className="text-base font-medium text-gray-900">{formatDate(staff.date_of_birth)}</p>
               </div>
-              {staff.address && (
+              {staff.address_line1 && (
                 <div className="md:col-span-2">
                   <p className="text-sm text-gray-600">Address</p>
-                  <p className="text-base font-medium text-gray-900">{staff.address}</p>
+                  <p className="text-base font-medium text-gray-900">{staff.address_line1}</p>
                 </div>
               )}
             </div>
@@ -156,11 +156,11 @@ export default function ViewStaffModal({ isOpen, onClose, staff }: ViewStaffModa
             </div>
           )}
 
-          {/* Qualifications */}
-          {staff.qualifications && (
+          {/* Performance */}
+          {staff.performance_rating && (
             <div className="mb-6">
-              <h4 className="text-lg font-semibold text-gray-900 mb-2">Qualifications</h4>
-              <p className="text-base text-gray-700 whitespace-pre-wrap">{staff.qualifications}</p>
+              <h4 className="text-lg font-semibold text-gray-900 mb-2">Performance Rating</h4>
+              <p className="text-base text-gray-700">{staff.performance_rating}/5</p>
             </div>
           )}
 

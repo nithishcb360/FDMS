@@ -151,7 +151,7 @@ export default function AddPreneedModal({ isOpen, onClose, onPreneedAdded }: Add
                 <label className="block text-sm font-medium text-gray-700 mb-2">Relationship to Primary Contact</label>
                 <input
                   type="text"
-                  value={formData.relationship_to_primary}
+                  value={formData.relationship_to_primary || ''}
                   onChange={(e) => setFormData({ ...formData, relationship_to_primary: e.target.value })}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                 />
@@ -290,7 +290,7 @@ export default function AddPreneedModal({ isOpen, onClose, onPreneedAdded }: Add
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Special Instructions</label>
                 <textarea
-                  value={formData.special_instructions}
+                  value={formData.special_instructions || ''}
                   onChange={(e) => setFormData({ ...formData, special_instructions: e.target.value })}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
@@ -300,7 +300,7 @@ export default function AddPreneedModal({ isOpen, onClose, onPreneedAdded }: Add
               <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Notes</label>
                 <textarea
-                  value={formData.notes}
+                  value={formData.notes || ''}
                   onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
                   rows={3}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"

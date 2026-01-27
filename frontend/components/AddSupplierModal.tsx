@@ -21,19 +21,15 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
     contact_person: '',
     email: '',
     phone: '',
-    fax: '',
     website: '',
     address: '',
     city: '',
     state: '',
     zip_code: '',
     country: 'USA',
-    tax_id: '',
     payment_terms: 'Net 30',
-    credit_limit: 0,
     status: 'Active',
     rating: 3,
-    delivery_reliability: 3,
     notes: '',
   });
 
@@ -46,24 +42,17 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
           contact_person: editData.contact_person || '',
           email: editData.email || '',
           phone: editData.phone || '',
-          fax: editData.fax || '',
           website: editData.website || '',
           address: editData.address || '',
           city: editData.city || '',
           state: editData.state || '',
           zip_code: editData.zip_code || '',
           country: editData.country || 'USA',
-          tax_id: editData.tax_id || '',
           payment_terms: editData.payment_terms || 'Net 30',
-          credit_limit: editData.credit_limit || 0,
           status: editData.status || 'Active',
           rating: editData.rating || 3,
-          delivery_reliability: editData.delivery_reliability || 3,
           notes: editData.notes || '',
         });
-        if (editData.categories_supplied) {
-          setSelectedCategories(editData.categories_supplied.split(','));
-        }
       }
     }
   }, [isOpen, isEditMode, editData]);
@@ -200,19 +189,6 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
 
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Fax
-                  </label>
-                  <input
-                    type="tel"
-                    name="fax"
-                    value={formData.fax}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Website
                   </label>
                   <input
@@ -322,19 +298,6 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Tax ID / EIN
-                  </label>
-                  <input
-                    type="text"
-                    name="tax_id"
-                    value={formData.tax_id}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
                     Payment Terms
                   </label>
                   <input
@@ -346,23 +309,6 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
                     className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
                   />
                   <p className="text-xs text-gray-500 mt-1">e.g., Net 30, Net 60, COD</p>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Credit Limit
-                  </label>
-                  <div className="relative">
-                    <span className="absolute left-3 top-2 text-gray-500">$</span>
-                    <input
-                      type="number"
-                      name="credit_limit"
-                      value={formData.credit_limit}
-                      onChange={handleChange}
-                      className="w-full pl-7 pr-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                    />
-                  </div>
-                  <p className="text-xs text-gray-500 mt-1">Maximum credit allowed</p>
                 </div>
 
                 <div>
@@ -430,21 +376,6 @@ export default function AddSupplierModal({ isOpen, onClose, onSave, editData, is
                   <p className="text-xs text-gray-500 mt-1">Rate from 1 (Poor) to 5 (Excellent)</p>
                 </div>
 
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Delivery Reliability
-                  </label>
-                  <input
-                    type="number"
-                    name="delivery_reliability"
-                    min="1"
-                    max="5"
-                    value={formData.delivery_reliability}
-                    onChange={handleChange}
-                    className="w-full px-3 py-2 border border-gray-300 rounded focus:ring-2 focus:ring-yellow-500 focus:border-transparent"
-                  />
-                  <p className="text-xs text-gray-500 mt-1">Rate from 1 (Poor) to 5 (Excellent)</p>
-                </div>
               </div>
             </div>
 

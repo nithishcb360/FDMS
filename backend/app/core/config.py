@@ -22,7 +22,12 @@ class Settings(BaseSettings):
     # Safe local fallback for development only:
     DATABASE_URL: str = "sqlite:///./dev.db"
     SECRET_KEY: str = "your-secret-key-change-in-production"
-    BACKEND_CORS_ORIGINS: List[str] = ["http://localhost:3000"]
+    BACKEND_CORS_ORIGINS: List[str] = [
+        "http://localhost:3000",
+        "http://localhost:3001",
+        "http://127.0.0.1:3000",
+        "http://127.0.0.1:3001"
+    ]
 
     class Config:
         env_file = ".env"
